@@ -334,16 +334,6 @@ var defaultCompletionRatio = map[string]float64{
 }
 
 // InitRatioSettings initializes all model related settings maps
-func InitRatioSettings() {
-	modelPriceMap.AddAll(defaultModelPrice)
-	modelRatioMap.AddAll(defaultModelRatio)
-	completionRatioMap.AddAll(defaultCompletionRatio)
-	cacheRatioMap.AddAll(defaultCacheRatio)
-	createCacheRatioMap.AddAll(defaultCreateCacheRatio)
-	imageRatioMap.AddAll(defaultImageRatio)
-	audioRatioMap.AddAll(defaultAudioRatio)
-	audioCompletionRatioMap.AddAll(defaultAudioCompletionRatio)
-}
 
 func GetModelPriceMap() map[string]float64 {
 	return modelPriceMap.ReadAll()
@@ -655,6 +645,22 @@ var defaultImageRatio = map[string]float64{
 var imageRatioMap = types.NewRWMap[string, float64]()
 var audioRatioMap = types.NewRWMap[string, float64]()
 var audioCompletionRatioMap = types.NewRWMap[string, float64]()
+var rebateMultiplierMap = types.NewRWMap[string, []float64]()
+var userDiscountMap = types.NewRWMap[string, []float64]()
+
+// InitRatioSettings initializes all ratio related settings maps
+func InitRatioSettings() {
+	// modelPriceMap.AddAll(defaultModelPrice)
+	// modelRatioMap.AddAll(defaultModelRatio)
+	// completionRatioMap.AddAll(defaultCompletionRatio)
+	// cacheRatioMap.AddAll(defaultCacheRatio)
+	// createCacheRatioMap.AddAll(defaultCreateCacheRatio)
+	// imageRatioMap.AddAll(defaultImageRatio)
+	// audioRatioMap.AddAll(defaultAudioRatio)
+	// audioCompletionRatioMap.AddAll(defaultAudioCompletionRatio)
+	// rebateMultiplierMap.AddAll(map[string][]float64{})
+	// userDiscountMap.AddAll(map[string][]float64{})
+}
 
 func ImageRatio2JSONString() string {
 	return imageRatioMap.MarshalJSONString()
@@ -698,6 +704,30 @@ func GetModelPriceCopy() map[string]float64 {
 
 func GetCompletionRatioCopy() map[string]float64 {
 	return completionRatioMap.ReadAll()
+}
+
+func UpdateRebateMultiplierByJSONString(jsonStr string) error {
+	return types.LoadFromJsonStringWithCallback(rebateMultiplierMap, jsonStr, InvalidateExposedDataCache)
+}
+
+func UpdateUserDiscountByJSONString(jsonStr string) error {
+	return types.LoadFromJsonStringWithCallback(userDiscountMap, jsonStr, InvalidateExposedDataCache)
+}
+
+func RebateMultiplier2JSONString() string {
+	return rebateMultiplierMap.MarshalJSONString()
+}
+
+func GetRebateMultiplierCopy() map[string][]float64 {
+	return rebateMultiplierMap.ReadAll()
+}
+
+func UserDiscount2JSONString() string {
+	return userDiscountMap.MarshalJSONString()
+}
+
+func GetUserDiscountCopy() map[string][]float64 {
+	return userDiscountMap.ReadAll()
 }
 
 // 转换模型名，减少渠道必须配置各种带参数模型

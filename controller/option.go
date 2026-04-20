@@ -233,6 +233,24 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
+	case "RebateMultiplier":
+		err = ratio_setting.UpdateRebateMultiplierByJSONString(option.Value.(string))
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "返点倍率设置失败: " + err.Error(),
+			})
+			return
+		}
+	case "UserDiscount":
+		err = ratio_setting.UpdateUserDiscountByJSONString(option.Value.(string))
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "用户折扣设置失败: " + err.Error(),
+			})
+			return
+		}
 	case "ModelRequestRateLimitGroup":
 		err = setting.CheckModelRequestRateLimitGroup(option.Value.(string))
 		if err != nil {

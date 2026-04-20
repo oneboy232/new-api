@@ -48,6 +48,8 @@ export default function ModelRatioSettings(props) {
     ImageRatio: '',
     AudioRatio: '',
     AudioCompletionRatio: '',
+    RebateMultiplier: '',
+    UserDiscount: '',
     ExposeRatioEnabled: false,
   });
   const refForm = useRef();
@@ -315,6 +317,48 @@ export default function ModelRatioSettings(props) {
               ]}
               onChange={(value) =>
                 setInputs({ ...inputs, AudioCompletionRatio: value })
+              }
+            />
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col xs={24} sm={16}>
+            <Form.TextArea
+              label={t('返点倍率设置')}
+              placeholder={t('为一个 JSON 文本，键为等级，值为数组，例如：{"金牌":[10000, 0.8, 0.2]}')}
+              field={'RebateMultiplier'}
+              autosize={{ minRows: 6, maxRows: 12 }}
+              trigger='blur'
+              stopValidateWithError
+              rules={[
+                {
+                  validator: (rule, value) => verifyJSON(value),
+                  message: '不是合法的 JSON 字符串',
+                },
+              ]}
+              onChange={(value) =>
+                setInputs({ ...inputs, RebateMultiplier: value })
+              }
+            />
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col xs={24} sm={16}>
+            <Form.TextArea
+              label={t('用户折扣设置')}
+              placeholder={t('为一个 JSON 文本，键为等级，值为数组，例如：{"青铜":[0, 1]}')}
+              field={'UserDiscount'}
+              autosize={{ minRows: 6, maxRows: 12 }}
+              trigger='blur'
+              stopValidateWithError
+              rules={[
+                {
+                  validator: (rule, value) => verifyJSON(value),
+                  message: '不是合法的 JSON 字符串',
+                },
+              ]}
+              onChange={(value) =>
+                setInputs({ ...inputs, UserDiscount: value })
               }
             />
           </Col>
