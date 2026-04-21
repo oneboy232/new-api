@@ -42,8 +42,12 @@ type User struct {
 	Group            string         `json:"group" gorm:"type:varchar(64);default:'default'"`
 	AffCode          string         `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	AffCount         int            `json:"aff_count" gorm:"type:int;default:0;column:aff_count"`
-	AffQuota         int            `json:"aff_quota" gorm:"type:int;default:0;column:aff_quota"`           // 邀请剩余额度
-	AffHistoryQuota  int            `json:"aff_history_quota" gorm:"type:int;default:0;column:aff_history"` // 邀请历史额度
+	AffCountL2       int            `json:"aff_count_l2" gorm:"type:int;default:0;column:aff_count_l2"`             // 二级邀请人员数
+	AffLevel         string         `json:"aff_level" gorm:"type:varchar(32);default:'';column:aff_level"`          // 代理等级
+	AffQuota         int            `json:"aff_quota" gorm:"type:int;default:0;column:aff_quota"`                   // 返点额度
+	AffHistoryQuota  int            `json:"aff_history_quota" gorm:"type:int;default:0;column:aff_history"`         // 邀请历史额度
+	AffWithdrawQuota int            `json:"aff_withdraw_quota" gorm:"type:int;default:0;column:aff_withdraw_quota"` // 提现额度
+	SpendLevel       string         `json:"spend_level" gorm:"type:varchar(32);default:'';column:spend_level"`      // 消费等级
 	InviterId        int            `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 	LinuxDOId        string         `json:"linux_do_id" gorm:"column:linux_do_id;index"`
@@ -334,8 +338,21 @@ func inviteUser(inviterId int) (err error) {
 		return err
 	}
 	user.AffCount++
-	user.AffQuota += common.QuotaForInviter
-	user.AffHistoryQuota += common.QuotaForInviter
+	// user.AffQuota += common.QuotaForInviter
+	// user.AffHistoryQuota += common.QuotaForInviter
+
+	// 更新二级邀请人员数
+	if user.InviterId != 0 {
+		inviter, err := GetUserById(user.InviterId, true)
+		if err == nil {
+			inviter.AffCountL2++
+			err := DB.Save(inviter).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return DB.Save(user).Error
 }
 
