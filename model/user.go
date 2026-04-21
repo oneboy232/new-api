@@ -393,6 +393,38 @@ func (user *User) TransferAffQuotaToQuota(quota int) error {
 	return tx.Commit().Error
 }
 
+func (user *User) TransferAffQuotaToWithdrawQuota(quota int) error {
+	if quota <= 0 {
+		return errors.New("提现金额必须大于0")
+	}
+
+	tx := DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer tx.Rollback()
+
+	err := tx.Set("gorm:query_option", "FOR UPDATE").First(&user, user.Id).Error
+	if err != nil {
+		return err
+	}
+
+	if user.AffQuota < quota {
+		return errors.New("返点额度不足")
+	}
+
+	user.AffQuota -= quota
+	user.AffWithdrawQuota += quota
+
+	if err := tx.Save(user).Error; err != nil {
+		return err
+	}
+
+	RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("返点额度提现 %s 到提现额度", logger.LogQuota(quota)))
+
+	return tx.Commit().Error
+}
+
 func (user *User) Insert(inviterId int) error {
 	var err error
 	if user.Password != "" {
