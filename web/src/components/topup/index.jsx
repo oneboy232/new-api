@@ -91,6 +91,10 @@ const TopUp = () => {
   const [openTransfer, setOpenTransfer] = useState(false);
   const [transferAmount, setTransferAmount] = useState(0);
 
+  // 提现相关状态
+  const [openWithdraw, setOpenWithdraw] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState(0);
+
   // 账单Modal状态
   const [openHistory, setOpenHistory] = useState(false);
 
@@ -564,6 +568,25 @@ const TopUp = () => {
     }
   };
 
+  // 提现：返点金额转到提现金额
+  const withdraw = async () => {
+    if (withdrawAmount <= 0) {
+      showError(t('提现金额必须大于0'));
+      return;
+    }
+    const res = await API.post(`/api/user/aff_to_withdraw`, {
+      quota: withdrawAmount,
+    });
+    const { success, message } = res.data;
+    if (success) {
+      showSuccess(message);
+      setOpenWithdraw(false);
+      getUserQuota().then();
+    } else {
+      showError(message);
+    }
+  };
+
   // 复制邀请链接
   const handleAffLinkClick = async () => {
     await copy(affLink);
@@ -583,6 +606,7 @@ const TopUp = () => {
     // 始终获取最新用户数据，确保余额等统计信息准确
     getUserQuota().then();
     setTransferAmount(getQuotaPerUnit());
+    setWithdrawAmount(getQuotaPerUnit());
   }, []);
 
   useEffect(() => {
@@ -675,6 +699,10 @@ const TopUp = () => {
     setOpenTransfer(false);
   };
 
+  const handleWithdrawCancel = () => {
+    setOpenWithdraw(false);
+  };
+
   const handleOpenHistory = () => {
     setOpenHistory(true);
   };
@@ -725,6 +753,25 @@ const TopUp = () => {
         getQuotaPerUnit={getQuotaPerUnit}
         transferAmount={transferAmount}
         setTransferAmount={setTransferAmount}
+        title={t('划转邀请额度')}
+        availableLabel={t('可用邀请额度')}
+        amountLabel={t('划转额度')}
+      />
+
+      {/* 提现模态框 */}
+      <TransferModal
+        t={t}
+        openTransfer={openWithdraw}
+        transfer={withdraw}
+        handleTransferCancel={handleWithdrawCancel}
+        userState={userState}
+        renderQuota={renderQuota}
+        getQuotaPerUnit={getQuotaPerUnit}
+        transferAmount={withdrawAmount}
+        setTransferAmount={setWithdrawAmount}
+        title={t('提现到提现金额')}
+        availableLabel={t('可用返点金额')}
+        amountLabel={t('提现金额')}
       />
 
       {/* 充值确认模态框 */}
@@ -832,6 +879,7 @@ const TopUp = () => {
           userState={userState}
           renderQuota={renderQuota}
           setOpenTransfer={setOpenTransfer}
+          setOpenWithdraw={setOpenWithdraw}
           affLink={affLink}
           handleAffLinkClick={handleAffLinkClick}
         />

@@ -31,13 +31,21 @@ const TransferModal = ({
   getQuotaPerUnit,
   transferAmount,
   setTransferAmount,
+  title,
+  availableLabel,
+  amountLabel,
 }) => {
+  const isWithdraw = title?.includes('提现');
+  const availableQuota = isWithdraw
+    ? userState?.user?.aff_quota || 0
+    : userState?.user?.aff_quota || 0;
+
   return (
     <Modal
       title={
         <div className='flex items-center'>
           <CreditCard className='mr-2' size={18} />
-          {t('划转邀请额度')}
+          {title || t('划转邀请额度')}
         </div>
       }
       visible={openTransfer}
@@ -49,21 +57,21 @@ const TransferModal = ({
       <div className='space-y-4'>
         <div>
           <Typography.Text strong className='block mb-2'>
-            {t('可用邀请额度')}
+            {availableLabel || t('可用邀请额度')}
           </Typography.Text>
           <Input
-            value={renderQuota(userState?.user?.aff_quota)}
+            value={renderQuota(availableQuota)}
             disabled
             className='!rounded-lg'
           />
         </div>
         <div>
           <Typography.Text strong className='block mb-2'>
-            {t('划转额度')} · {t('最低') + renderQuota(getQuotaPerUnit())}
+            {amountLabel || t('划转额度')} · {t('最低') + renderQuota(getQuotaPerUnit())}
           </Typography.Text>
           <InputNumber
             min={getQuotaPerUnit()}
-            max={userState?.user?.aff_quota || 0}
+            max={availableQuota}
             value={transferAmount}
             onChange={(value) => setTransferAmount(value)}
             className='w-full !rounded-lg'
