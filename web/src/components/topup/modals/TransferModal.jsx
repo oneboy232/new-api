@@ -17,9 +17,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Typography, Input, InputNumber } from '@douyinfe/semi-ui';
 import { CreditCard } from 'lucide-react';
+import { quotaToAmount, amountToQuota, getCurrencyConfig } from '../../../helpers/render';
 
 const TransferModal = ({
   t,
@@ -36,9 +37,29 @@ const TransferModal = ({
   amountLabel,
 }) => {
   const isWithdraw = title?.includes('提现');
-  const availableQuota = isWithdraw
-    ? userState?.user?.aff_quota || 0
-    : userState?.user?.aff_quota || 0;
+  const availableQuota = userState?.user?.aff_quota || 0;
+  const { symbol } = getCurrencyConfig();
+
+  // 金额输入模式（quota 或 钱）
+  const [inputMode, setInputMode] = useState('money'); // 'quota' 或 'money'
+  const [moneyAmount, setMoneyAmount] = useState(0);
+
+  useEffect(() => {
+    if (openTransfer) {
+      setInputMode('money');
+      setMoneyAmount(quotaToAmount(transferAmount));
+    }
+  }, [openTransfer]);
+
+  const handleMoneyChange = (value) => {
+    setMoneyAmount(value);
+    setTransferAmount(amountToQuota(value));
+  };
+
+  const handleQuotaChange = (value) => {
+    setTransferAmount(value);
+    setMoneyAmount(quotaToAmount(value));
+  };
 
   return (
     <Modal
@@ -65,17 +86,77 @@ const TransferModal = ({
             className='!rounded-lg'
           />
         </div>
+
+        {/* 切换输入模式 */}
+        <div className='flex items-center'>
+          <div
+            className='inline-flex items-center p-1 rounded-lg'
+            style={{ backgroundColor: '#e6f4ff', border: '1px solid #91caff' }}
+          >
+            <button
+              type='button'
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                inputMode === 'money'
+                  ? 'shadow-sm'
+                  : ''
+              }`}
+              style={
+                inputMode === 'money'
+                  ? { backgroundColor: '#1677ff', color: '#fff' }
+                  : { color: '#1677ff' }
+              }
+              onClick={() => setInputMode('money')}
+            >
+              {t('金额')}
+            </button>
+            <button
+              type='button'
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
+                inputMode === 'quota'
+                  ? 'shadow-sm'
+                  : ''
+              }`}
+              style={
+                inputMode === 'quota'
+                  ? { backgroundColor: '#1677ff', color: '#fff' }
+                  : { color: '#1677ff' }
+              }
+              onClick={() => setInputMode('quota')}
+            >
+              {t('额度')}
+            </button>
+          </div>
+        </div>
+
         <div>
           <Typography.Text strong className='block mb-2'>
             {amountLabel || t('划转额度')} · {t('最低') + renderQuota(getQuotaPerUnit())}
           </Typography.Text>
-          <InputNumber
-            min={getQuotaPerUnit()}
-            max={availableQuota}
-            value={transferAmount}
-            onChange={(value) => setTransferAmount(value)}
-            className='w-full !rounded-lg'
-          />
+          {inputMode === 'quota' ? (
+            <InputNumber
+              min={getQuotaPerUnit()}
+              max={availableQuota}
+              value={transferAmount}
+              onChange={handleQuotaChange}
+              className='w-full !rounded-lg'
+            />
+          ) : (
+            <InputNumber
+              min={quotaToAmount(getQuotaPerUnit())}
+              max={quotaToAmount(availableQuota)}
+              value={moneyAmount}
+              onChange={handleMoneyChange}
+              formatter={(value) => `${symbol} ${value}`}
+              parser={(value) => value.replace(new RegExp(`\\${symbol}\\s?`), '')}
+              precision={2}
+              className='w-full !rounded-lg'
+            />
+          )}
+          <div className='text-xs text-gray-400 mt-1'>
+            {inputMode === 'quota'
+              ? `${t('约')} ${symbol}${quotaToAmount(transferAmount).toFixed(2)}`
+              : `${t('约')} ${renderQuota(transferAmount)}`}
+          </div>
         </div>
       </div>
     </Modal>

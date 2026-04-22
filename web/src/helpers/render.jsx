@@ -1063,6 +1063,20 @@ export function getQuotaWithUnit(quota, digits = 6) {
   return (quota / quotaPerUnit).toFixed(digits);
 }
 
+// 将金额（美元）转换为 quota
+export function amountToQuota(amount) {
+  let quotaPerUnit = localStorage.getItem('quota_per_unit');
+  quotaPerUnit = parseFloat(quotaPerUnit);
+  return Math.round(amount * quotaPerUnit);
+}
+
+// 将 quota 转换为金额（美元）
+export function quotaToAmount(quota) {
+  let quotaPerUnit = localStorage.getItem('quota_per_unit');
+  quotaPerUnit = parseFloat(quotaPerUnit);
+  return quota / quotaPerUnit;
+}
+
 export function renderQuotaWithAmount(amount) {
   const quotaDisplayType = localStorage.getItem('quota_display_type') || 'USD';
   if (quotaDisplayType === 'TOKENS') {
