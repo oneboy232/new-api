@@ -11,6 +11,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/logger"
+	"github.com/QuantumNous/new-api/setting/ratio_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
 	"gorm.io/gorm"
@@ -1001,10 +1002,22 @@ func UpdateUserUsedQuotaAndRequestCount(id int, quota int) {
 }
 
 func updateUserUsedQuotaAndRequestCount(id int, quota int, count int) {
-	err := DB.Model(&User{}).Where("id = ?", id).Updates(
+	// 先查询当前用户的 used_quota
+	var user User
+	err := DB.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		common.SysLog("failed to get user for spend level update: " + err.Error())
+		return
+	}
+
+	newUsedQuota := user.UsedQuota + quota
+	newSpendLevel := ratio_setting.GetSpendLevelByUsedQuota(newUsedQuota)
+
+	err = DB.Model(&User{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
 			"used_quota":    gorm.Expr("used_quota + ?", quota),
 			"request_count": gorm.Expr("request_count + ?", count),
+			"spend_level":   newSpendLevel,
 		},
 	).Error
 	if err != nil {
@@ -1019,9 +1032,21 @@ func updateUserUsedQuotaAndRequestCount(id int, quota int, count int) {
 }
 
 func updateUserUsedQuota(id int, quota int) {
-	err := DB.Model(&User{}).Where("id = ?", id).Updates(
+	// 先查询当前用户的 used_quota
+	var user User
+	err := DB.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		common.SysLog("failed to get user for spend level update: " + err.Error())
+		return
+	}
+
+	newUsedQuota := user.UsedQuota + quota
+	newSpendLevel := ratio_setting.GetSpendLevelByUsedQuota(newUsedQuota)
+
+	err = DB.Model(&User{}).Where("id = ?", id).Updates(
 		map[string]interface{}{
-			"used_quota": gorm.Expr("used_quota + ?", quota),
+			"used_quota":  gorm.Expr("used_quota + ?", quota),
+			"spend_level": newSpendLevel,
 		},
 	).Error
 	if err != nil {

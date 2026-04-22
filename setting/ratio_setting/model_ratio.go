@@ -1,6 +1,7 @@
 package ratio_setting
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
@@ -742,6 +743,56 @@ func GetRebateRateByAffLevel(affLevel string) (float64, float64) {
 		return 0, 0
 	}
 	return multiplier[1], multiplier[2]
+}
+
+// GetSpendLevelByUsedQuota 根据已使用额度计算消费等级
+// 将 quota 转换为当前系统设置的货币金额后，与用户折扣设置的阈值比较
+func GetSpendLevelByUsedQuota(usedQuota int) string {
+	discounts := userDiscountMap.ReadAll()
+	if len(discounts) == 0 {
+		return ""
+	}
+
+	// 将 quota 转换为当前系统货币金额
+	spentAmount := float64(usedQuota) / common.QuotaPerUnit
+	// 根据当前系统设置的展示类型，转换为对应的货币金额
+	quotaDisplayType := operation_setting.GetQuotaDisplayType()
+	if quotaDisplayType == operation_setting.QuotaDisplayTypeCNY {
+		spentAmount = spentAmount * operation_setting.USDExchangeRate
+	} else if quotaDisplayType == operation_setting.QuotaDisplayTypeCustom {
+		spentAmount = spentAmount * operation_setting.GetGeneralSetting().CustomCurrencyExchangeRate
+	}
+
+	// 将 discounts 按阈值排序（从低到高）
+	type levelInfo struct {
+		level     string
+		threshold float64
+	}
+	var levels []levelInfo
+	for level, values := range discounts {
+		if len(values) < 2 {
+			continue
+		}
+		levels = append(levels, levelInfo{
+			level:     level,
+			threshold: values[0],
+		})
+	}
+
+	// 按阈值从低到高排序
+	sort.Slice(levels, func(i, j int) bool {
+		return levels[i].threshold < levels[j].threshold
+	})
+
+	// 找到满足条件的最高等级
+	var matchedLevel string
+	for _, info := range levels {
+		if spentAmount >= info.threshold {
+			matchedLevel = info.level
+		}
+	}
+
+	return matchedLevel
 }
 
 func UserDiscount2JSONString() string {

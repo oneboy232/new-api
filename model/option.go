@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -491,6 +492,10 @@ func updateOptionMap(key string, value string) (err error) {
 		err = ratio_setting.UpdateRebateMultiplierByJSONString(value)
 	case "UserDiscount":
 		err = ratio_setting.UpdateUserDiscountByJSONString(value)
+		if err == nil {
+			// 用户折扣设置更新后，异步更新所有用户的消费等级
+			go updateAllUsersSpendLevel()
+		}
 	case "TopUpLink":
 		common.TopUpLink = value
 	//case "ChatLink":
@@ -519,6 +524,27 @@ func updateOptionMap(key string, value string) (err error) {
 		// No additional in-memory variable to update.
 	}
 	return err
+}
+
+// updateAllUsersSpendLevel 更新所有用户的消费等级
+func updateAllUsersSpendLevel() {
+	var users []User
+	err := DB.Find(&users).Error
+	if err != nil {
+		common.SysLog("failed to get users for spend level update: " + err.Error())
+		return
+	}
+
+	for _, user := range users {
+		newLevel := ratio_setting.GetSpendLevelByUsedQuota(user.UsedQuota)
+		if newLevel != user.SpendLevel {
+			err := DB.Model(&user).Update("spend_level", newLevel).Error
+			if err != nil {
+				common.SysLog(fmt.Sprintf("failed to update user %d spend level: %v", user.Id, err))
+			}
+		}
+	}
+	common.SysLog(fmt.Sprintf("updated spend level for %d users", len(users)))
 }
 
 // handleConfigUpdate 处理分层配置更新，返回是否已处理
