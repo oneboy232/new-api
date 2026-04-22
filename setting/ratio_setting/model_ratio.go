@@ -722,6 +722,17 @@ func GetRebateMultiplierCopy() map[string][]float64 {
 	return rebateMultiplierMap.ReadAll()
 }
 
+func GetDiscountBySpendLevel(spendLevel string) float64 {
+	if spendLevel == "" {
+		return 1.0
+	}
+	discount, ok := userDiscountMap.Get(spendLevel)
+	if !ok || len(discount) == 0 {
+		return 1.0
+	}
+	return discount[1]
+}
+
 func UserDiscount2JSONString() string {
 	return userDiscountMap.MarshalJSONString()
 }

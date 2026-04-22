@@ -217,6 +217,48 @@ const RechargeCard = ({
                     </Text>
                   </div>
                 </div>
+
+                {/* 消费等级 */}
+                <div className='text-center'>
+                  <div
+                    className='text-base sm:text-2xl font-bold mb-2'
+                    style={{ color: 'white' }}
+                  >
+                    {userState?.user?.spend_level || '-'}
+                  </div>
+                  <div className='flex items-center justify-center text-sm'>
+                    <Text
+                      style={{
+                        color: 'rgba(255,255,255,0.8)',
+                        fontSize: '12px',
+                      }}
+                    >
+                      {t('消费等级')}
+                    </Text>
+                  </div>
+                </div>
+
+                {/* 折扣 */}
+                <div className='text-center'>
+                  <div
+                    className='text-base sm:text-2xl font-bold mb-2'
+                    style={{ color: 'white' }}
+                  >
+                    {userState?.user?.discount === 1
+                      ? t('无折扣')
+                      : `${(userState?.user?.discount || 1) * 100}%`}
+                  </div>
+                  <div className='flex items-center justify-center text-sm'>
+                    <Text
+                      style={{
+                        color: 'rgba(255,255,255,0.8)',
+                        fontSize: '12px',
+                      }}
+                    >
+                      {t('折扣')}
+                    </Text>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
