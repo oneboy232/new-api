@@ -93,8 +93,8 @@ const InvitationCard = ({
                 </div>
 
                 {/* 统计数据 */}
-                <div className='grid grid-cols-3 gap-6 mt-4'>
-                  {/* 待使用收益 */}
+                <div className='grid grid-cols-4 gap-4 mt-4'>
+                  {/* 返点金额 */}
                   <div className='text-center'>
                     <div
                       className='text-base sm:text-2xl font-bold mb-2'
@@ -114,18 +114,18 @@ const InvitationCard = ({
                           fontSize: '12px',
                         }}
                       >
-                        {t('待使用收益')}
+                        {t('返点金额')}
                       </Text>
                     </div>
                   </div>
 
-                  {/* 总收益 */}
+                  {/* 提现金额 */}
                   <div className='text-center'>
                     <div
                       className='text-base sm:text-2xl font-bold mb-2'
                       style={{ color: 'white' }}
                     >
-                      {renderQuota(userState?.user?.aff_history_quota || 0)}
+                      {renderQuota(userState?.user?.aff_withdraw_quota || 0)}
                     </div>
                     <div className='flex items-center justify-center text-sm'>
                       <BarChart2
@@ -139,12 +139,12 @@ const InvitationCard = ({
                           fontSize: '12px',
                         }}
                       >
-                        {t('总收益')}
+                        {t('提现金额')}
                       </Text>
                     </div>
                   </div>
 
-                  {/* 邀请人数 */}
+                  {/* 一级邀请人数 */}
                   <div className='text-center'>
                     <div
                       className='text-base sm:text-2xl font-bold mb-2'
@@ -164,7 +164,32 @@ const InvitationCard = ({
                           fontSize: '12px',
                         }}
                       >
-                        {t('邀请人数')}
+                        {t('一级邀请人数')}
+                      </Text>
+                    </div>
+                  </div>
+
+                  {/* 二级邀请人数 */}
+                  <div className='text-center'>
+                    <div
+                      className='text-base sm:text-2xl font-bold mb-2'
+                      style={{ color: 'white' }}
+                    >
+                      {userState?.user?.aff_count_l2 || 0}
+                    </div>
+                    <div className='flex items-center justify-center text-sm'>
+                      <Users
+                        size={14}
+                        className='mr-1'
+                        style={{ color: 'rgba(255,255,255,0.8)' }}
+                      />
+                      <Text
+                        style={{
+                          color: 'rgba(255,255,255,0.8)',
+                          fontSize: '12px',
+                        }}
+                      >
+                        {t('二级邀请人数')}
                       </Text>
                     </div>
                   </div>
