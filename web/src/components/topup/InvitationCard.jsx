@@ -93,104 +93,174 @@ const InvitationCard = ({
                 </div>
 
                 {/* 统计数据 */}
-                <div className='grid grid-cols-4 gap-4 mt-4'>
-                  {/* 返点金额 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {renderQuota(userState?.user?.aff_quota || 0)}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <TrendingUp
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
+                <div className='flex flex-col gap-4 mt-4'>
+                  {/* 第一行：金额和人数 */}
+                  <div className='grid grid-cols-4 gap-4'>
+                    {/* 返点金额 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
                       >
-                        {t('返点金额')}
-                      </Text>
+                        {renderQuota(userState?.user?.aff_quota || 0)}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <TrendingUp
+                          size={14}
+                          className='mr-1'
+                          style={{ color: 'rgba(255,255,255,0.8)' }}
+                        />
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('返点金额')}
+                        </Text>
+                      </div>
+                    </div>
+
+                    {/* 提现金额 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
+                      >
+                        {renderQuota(userState?.user?.aff_withdraw_quota || 0)}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <BarChart2
+                          size={14}
+                          className='mr-1'
+                          style={{ color: 'rgba(255,255,255,0.8)' }}
+                        />
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('提现金额')}
+                        </Text>
+                      </div>
+                    </div>
+
+                    {/* 一级邀请人数 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
+                      >
+                        {userState?.user?.aff_count || 0}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <Users
+                          size={14}
+                          className='mr-1'
+                          style={{ color: 'rgba(255,255,255,0.8)' }}
+                        />
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('一级邀请人数')}
+                        </Text>
+                      </div>
+                    </div>
+
+                    {/* 二级邀请人数 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
+                      >
+                        {userState?.user?.aff_count_l2 || 0}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <Users
+                          size={14}
+                          className='mr-1'
+                          style={{ color: 'rgba(255,255,255,0.8)' }}
+                        />
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('二级邀请人数')}
+                        </Text>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 提现金额 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {renderQuota(userState?.user?.aff_withdraw_quota || 0)}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <BarChart2
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
+                  {/* 第二行：等级和返点率 */}
+                  <div className='grid grid-cols-4 gap-4'>
+                    {/* 代理等级 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
                       >
-                        {t('提现金额')}
-                      </Text>
+                        {userState?.user?.aff_level || '-'}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('代理等级')}
+                        </Text>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 一级邀请人数 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {userState?.user?.aff_count || 0}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <Users
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
+                    {/* 一级返点率 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
                       >
-                        {t('一级邀请人数')}
-                      </Text>
+                        {userState?.user?.rebate_rate_l1 != null
+                          ? `${(userState?.user?.rebate_rate_l1 * 100).toFixed(1)}%`
+                          : '-'}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('一级返点率')}
+                        </Text>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 二级邀请人数 */}
-                  <div className='text-center'>
-                    <div
-                      className='text-base sm:text-2xl font-bold mb-2'
-                      style={{ color: 'white' }}
-                    >
-                      {userState?.user?.aff_count_l2 || 0}
-                    </div>
-                    <div className='flex items-center justify-center text-sm'>
-                      <Users
-                        size={14}
-                        className='mr-1'
-                        style={{ color: 'rgba(255,255,255,0.8)' }}
-                      />
-                      <Text
-                        style={{
-                          color: 'rgba(255,255,255,0.8)',
-                          fontSize: '12px',
-                        }}
+                    {/* 二级返点率 */}
+                    <div className='text-center'>
+                      <div
+                        className='text-base sm:text-2xl font-bold mb-2'
+                        style={{ color: 'white' }}
                       >
-                        {t('二级邀请人数')}
-                      </Text>
+                        {userState?.user?.rebate_rate_l2 != null
+                          ? `${(userState?.user?.rebate_rate_l2 * 100).toFixed(1)}%`
+                          : '-'}
+                      </div>
+                      <div className='flex items-center justify-center text-sm'>
+                        <Text
+                          style={{
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {t('二级返点率')}
+                        </Text>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -733,6 +733,17 @@ func GetDiscountBySpendLevel(spendLevel string) float64 {
 	return discount[1]
 }
 
+func GetRebateRateByAffLevel(affLevel string) (float64, float64) {
+	if affLevel == "" {
+		return 0, 0
+	}
+	multiplier, ok := rebateMultiplierMap.Get(affLevel)
+	if !ok || len(multiplier) < 3 {
+		return 0, 0
+	}
+	return multiplier[1], multiplier[2]
+}
+
 func UserDiscount2JSONString() string {
 	return userDiscountMap.MarshalJSONString()
 }

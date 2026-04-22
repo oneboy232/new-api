@@ -407,6 +407,10 @@ func GetSelf(c *gin.Context) {
 	// 获取用户设置并提取sidebar_modules
 	userSetting := user.GetSetting()
 
+	// 计算返点率
+	r1, r2 := ratio_setting.GetRebateRateByAffLevel(user.AffLevel)
+	common.SysLog(fmt.Sprintf("GetSelf rebate: affLevel=%s, r1=%v, r2=%v", user.AffLevel, r1, r2))
+
 	// 构建响应数据，包含用户信息和权限
 	responseData := map[string]interface{}{
 		"id":                 user.Id,
@@ -433,6 +437,8 @@ func GetSelf(c *gin.Context) {
 		"aff_withdraw_quota": user.AffWithdrawQuota,
 		"spend_level":        user.SpendLevel,
 		"discount":           ratio_setting.GetDiscountBySpendLevel(user.SpendLevel),
+		"rebate_rate_l1":     r1,
+		"rebate_rate_l2":     r2,
 		"inviter_id":         user.InviterId,
 		"linux_do_id":        user.LinuxDOId,
 		"setting":            user.Setting,
