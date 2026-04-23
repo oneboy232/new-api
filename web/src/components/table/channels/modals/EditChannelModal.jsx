@@ -49,6 +49,7 @@ import {
   Tooltip,
   Collapse,
   Dropdown,
+  InputNumber,
 } from '@douyinfe/semi-ui';
 import {
   getChannelModels,
@@ -907,6 +908,9 @@ const EditChannelModal = (props) => {
           )
             ? parsedSettings.upstream_model_update_ignored_models.join(',')
             : '';
+          // 读取模型校准倍率
+          data.model_calibration_ratios =
+            parsedSettings.model_calibration_ratios || {};
         } catch (error) {
           console.error('解析其他设置失败:', error);
           data.azure_responses_version = '';
@@ -942,6 +946,7 @@ const EditChannelModal = (props) => {
         data.upstream_model_update_last_check_time = 0;
         data.upstream_model_update_last_detected_models = [];
         data.upstream_model_update_ignored_models = '';
+        data.model_calibration_ratios = {};
       }
 
       if (
@@ -1803,6 +1808,9 @@ const EditChannelModal = (props) => {
       settings.upstream_model_update_last_check_time = 0;
     }
 
+    // 保存模型校准倍率
+    settings.model_calibration_ratios = localInputs.model_calibration_ratios || {};
+
     localInputs.settings = JSON.stringify(settings);
 
     // 清理不需要发送到后端的字段
@@ -2505,6 +2513,48 @@ const EditChannelModal = (props) => {
 
                   <Form.TextArea field='system_prompt' label={t('系统提示词')} placeholder={t('输入系统提示词，用户的系统提示词将优先于此设置')} onChange={(value) => handleChannelSettingsChange('system_prompt', value)} autosize showClear extraText={t('用户优先：如果用户在请求中指定了系统提示词，将优先使用用户的设置')} />
                   <Form.Switch field='system_prompt_override' label={t('系统提示词拼接')} checkedText={t('开')} uncheckedText={t('关')} onChange={(value) => handleChannelSettingsChange('system_prompt_override', value)} extraText={t('如果用户请求中包含系统提示词，则使用此设置拼接到用户的系统提示词前面')} />
+                </div>
+
+                {/* 模型校准倍率 */}
+                <div className='pt-3'>
+                  <Text className='text-sm font-medium text-gray-500 mb-3 block'>
+                    {t('模型校准倍率')}
+                  </Text>
+                  <div className='text-xs text-gray-400 mb-2'>
+                    {t('为每个模型设置校准倍率，1.0表示不调整，小于1.0表示降价，大于1.0表示涨价')}
+                  </div>
+                  {Array.isArray(inputs.models) && inputs.models.length > 0 ? (
+                    <div className='space-y-2 max-h-60 overflow-y-auto'>
+                      {inputs.models.map((model) => (
+                        <div key={model} className='flex items-center justify-between p-2 bg-gray-50 rounded'>
+                          <span className='text-sm truncate flex-1 mr-4' title={model}>
+                            {model}
+                          </span>
+                          <InputNumber
+                            value={inputs.model_calibration_ratios?.[model] ?? 1.0}
+                            min={0}
+                            max={10}
+                            step={0.1}
+                            precision={2}
+                            style={{ width: 120 }}
+                            onChange={(value) => {
+                              const newRatios = { ...(inputs.model_calibration_ratios || {}) };
+                              if (value === 1.0 || value === null || value === undefined) {
+                                delete newRatios[model];
+                              } else {
+                                newRatios[model] = value;
+                              }
+                              handleChannelOtherSettingsChange('model_calibration_ratios', newRatios);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className='text-sm text-gray-400 py-4 text-center'>
+                      {t('请先选择模型')}
+                    </div>
+                  )}
                 </div>
               </div>
             );
