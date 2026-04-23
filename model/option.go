@@ -490,6 +490,10 @@ func updateOptionMap(key string, value string) (err error) {
 		err = ratio_setting.UpdateAudioCompletionRatioByJSONString(value)
 	case "RebateMultiplier":
 		err = ratio_setting.UpdateRebateMultiplierByJSONString(value)
+		if err == nil {
+			// 返点倍率设置更新后，异步更新所有用户的代理等级
+			go updateAllUsersAffLevel()
+		}
 	case "UserDiscount":
 		err = ratio_setting.UpdateUserDiscountByJSONString(value)
 		if err == nil {
@@ -545,6 +549,27 @@ func updateAllUsersSpendLevel() {
 		}
 	}
 	common.SysLog(fmt.Sprintf("updated spend level for %d users", len(users)))
+}
+
+// updateAllUsersAffLevel 更新所有用户的代理等级
+func updateAllUsersAffLevel() {
+	var users []User
+	err := DB.Find(&users).Error
+	if err != nil {
+		common.SysLog("failed to get users for aff level update: " + err.Error())
+		return
+	}
+
+	for _, user := range users {
+		newLevel := ratio_setting.GetAffLevelByAffQuota(user.AffQuota)
+		if newLevel != user.AffLevel {
+			err := DB.Model(&user).Update("aff_level", newLevel).Error
+			if err != nil {
+				common.SysLog(fmt.Sprintf("failed to update user %d aff level: %v", user.Id, err))
+			}
+		}
+	}
+	common.SysLog(fmt.Sprintf("updated aff level for %d users", len(users)))
 }
 
 // handleConfigUpdate 处理分层配置更新，返回是否已处理

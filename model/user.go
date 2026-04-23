@@ -384,6 +384,8 @@ func (user *User) TransferAffQuotaToQuota(quota int) error {
 	// 更新用户额度
 	user.AffQuota -= quota
 	user.Quota += quota
+	// 更新代理等级
+	user.AffLevel = ratio_setting.GetAffLevelByAffQuota(user.AffQuota)
 
 	// 保存用户状态
 	if err := tx.Save(user).Error; err != nil {
@@ -416,6 +418,8 @@ func (user *User) TransferAffQuotaToWithdrawQuota(quota int) error {
 
 	user.AffQuota -= quota
 	user.AffWithdrawQuota += quota
+	// 更新代理等级
+	user.AffLevel = ratio_setting.GetAffLevelByAffQuota(user.AffQuota)
 
 	if err := tx.Save(user).Error; err != nil {
 		return err

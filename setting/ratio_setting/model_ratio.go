@@ -803,6 +803,56 @@ func GetUserDiscountCopy() map[string][]float64 {
 	return userDiscountMap.ReadAll()
 }
 
+// GetAffLevelByAffQuota 根据返点额度计算代理等级
+// 将 quota 转换为当前系统设置的货币金额后，与返点倍率设置的阈值比较
+func GetAffLevelByAffQuota(affQuota int) string {
+	multipliers := rebateMultiplierMap.ReadAll()
+	if len(multipliers) == 0 {
+		return ""
+	}
+
+	// 将 quota 转换为当前系统货币金额
+	amount := float64(affQuota) / common.QuotaPerUnit
+	// 根据当前系统设置的展示类型，转换为对应的货币金额
+	quotaDisplayType := operation_setting.GetQuotaDisplayType()
+	if quotaDisplayType == operation_setting.QuotaDisplayTypeCNY {
+		amount = amount * operation_setting.USDExchangeRate
+	} else if quotaDisplayType == operation_setting.QuotaDisplayTypeCustom {
+		amount = amount * operation_setting.GetGeneralSetting().CustomCurrencyExchangeRate
+	}
+
+	// 将 multipliers 按阈值排序（从低到高）
+	type levelInfo struct {
+		level     string
+		threshold float64
+	}
+	var levels []levelInfo
+	for level, values := range multipliers {
+		if len(values) < 3 {
+			continue
+		}
+		levels = append(levels, levelInfo{
+			level:     level,
+			threshold: values[0],
+		})
+	}
+
+	// 按阈值从低到高排序
+	sort.Slice(levels, func(i, j int) bool {
+		return levels[i].threshold < levels[j].threshold
+	})
+
+	// 找到满足条件的最高等级
+	var matchedLevel string
+	for _, info := range levels {
+		if amount >= info.threshold {
+			matchedLevel = info.level
+		}
+	}
+
+	return matchedLevel
+}
+
 // 转换模型名，减少渠道必须配置各种带参数模型
 func FormatMatchingModelName(name string) string {
 
