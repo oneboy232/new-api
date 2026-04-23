@@ -93,6 +93,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.POST("/waffo/pay", middleware.CriticalRateLimit(), controller.RequestWaffoPay)
 				selfRoute.POST("/aff_transfer", controller.TransferAffQuota)
 				selfRoute.POST("/aff_to_withdraw", controller.TransferAffToWithdrawQuota)
+				selfRoute.GET("/invited_users", controller.GetInvitedUsers)
 				selfRoute.PUT("/setting", controller.UpdateUserSetting)
 
 				// 2FA routes

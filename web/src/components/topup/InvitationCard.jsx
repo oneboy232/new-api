@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Avatar,
   Typography,
@@ -26,8 +26,11 @@ import {
   Input,
   Badge,
   Space,
+  Modal,
+  Table,
 } from '@douyinfe/semi-ui';
 import { Copy, Users, BarChart2, TrendingUp, Gift, Zap } from 'lucide-react';
+import { API } from '../../helpers';
 
 const { Text } = Typography;
 
@@ -40,6 +43,46 @@ const InvitationCard = ({
   affLink,
   handleAffLinkClick,
 }) => {
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [inviteModalTitle, setInviteModalTitle] = useState('');
+  const [inviteList, setInviteList] = useState([]);
+  const [inviteLoading, setInviteLoading] = useState(false);
+
+  const fetchInvitedUsers = async (level) => {
+    setInviteLoading(true);
+    try {
+      const res = await API.get(`/api/user/invited_users?level=${level}`);
+      if (res.data.success) {
+        setInviteList(res.data.data || []);
+        setInviteModalTitle(level === 1 ? t('一级邀请人员') : t('二级邀请人员'));
+        setInviteModalVisible(true);
+      }
+    } catch (error) {
+      console.error('Failed to fetch invited users:', error);
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const inviteColumns = [
+    {
+      title: t('用户名'),
+      dataIndex: 'username',
+      key: 'username',
+    },
+    {
+      title: t('显示名称'),
+      dataIndex: 'display_name',
+      key: 'display_name',
+    },
+    {
+      title: t('注册时间'),
+      dataIndex: 'created_time',
+      key: 'created_time',
+      render: (time) => new Date(time * 1000).toLocaleString(),
+    },
+  ];
+
   return (
     <Card className='!rounded-2xl shadow-sm border-0'>
       {/* 卡片头部 */}
@@ -166,8 +209,9 @@ const InvitationCard = ({
                     {/* 一级邀请人数 */}
                     <div className='text-center'>
                       <div
-                        className='text-base sm:text-2xl font-bold mb-2'
+                        className='text-base sm:text-2xl font-bold mb-2 cursor-pointer hover:underline hover:text-yellow-300 transition-colors'
                         style={{ color: 'white' }}
+                        onClick={() => fetchInvitedUsers(1)}
                       >
                         {userState?.user?.aff_count || 0}
                       </div>
@@ -191,8 +235,9 @@ const InvitationCard = ({
                     {/* 二级邀请人数 */}
                     <div className='text-center'>
                       <div
-                        className='text-base sm:text-2xl font-bold mb-2'
+                        className='text-base sm:text-2xl font-bold mb-2 cursor-pointer hover:underline hover:text-yellow-300 transition-colors'
                         style={{ color: 'white' }}
+                        onClick={() => fetchInvitedUsers(2)}
                       >
                         {userState?.user?.aff_count_l2 || 0}
                       </div>
@@ -334,6 +379,23 @@ const InvitationCard = ({
           </div>
         </Card>
       </Space>
+
+      {/* 邀请人员列表弹窗 */}
+      <Modal
+        title={inviteModalTitle}
+        visible={inviteModalVisible}
+        onCancel={() => setInviteModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <Table
+          columns={inviteColumns}
+          dataSource={inviteList}
+          loading={inviteLoading}
+          pagination={false}
+          size='small'
+        />
+      </Modal>
     </Card>
   );
 };

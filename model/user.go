@@ -1115,3 +1115,39 @@ func RootUserExists() bool {
 	}
 	return true
 }
+
+// GetInvitedUsersByLevel 根据邀请人ID和级别获取邀请的用户列表
+// level: 1-一级邀请，2-二级邀请
+func GetInvitedUsersByLevel(inviterId int, level int) ([]User, error) {
+	if inviterId == 0 {
+		return nil, errors.New("inviter id is empty")
+	}
+
+	if level == 1 {
+		// 一级邀请：直接邀请的用户
+		var users []User
+		err := DB.Omit("password").Where("inviter_id = ?", inviterId).Find(&users).Error
+		return users, err
+	} else if level == 2 {
+		// 二级邀请：先找到一级邀请的用户，再找他们邀请的用户
+		var level1Users []User
+		err := DB.Select("id").Where("inviter_id = ?", inviterId).Find(&level1Users).Error
+		if err != nil {
+			return nil, err
+		}
+		if len(level1Users) == 0 {
+			return []User{}, nil
+		}
+
+		var level1Ids []int
+		for _, u := range level1Users {
+			level1Ids = append(level1Ids, u.Id)
+		}
+
+		var users []User
+		err = DB.Omit("password").Where("inviter_id IN ?", level1Ids).Find(&users).Error
+		return users, err
+	}
+
+	return nil, errors.New("invalid level")
+}

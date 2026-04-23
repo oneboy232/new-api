@@ -1233,3 +1233,30 @@ func UpdateUserSetting(c *gin.Context) {
 
 	common.ApiSuccessI18n(c, i18n.MsgSettingSaved, nil)
 }
+
+func GetInvitedUsers(c *gin.Context) {
+	id, exists := c.Get("id")
+	if !exists {
+		common.ApiError(c, errors.New("user not authenticated"))
+		return
+	}
+	userId, ok := id.(int)
+	if !ok {
+		common.ApiError(c, errors.New("invalid user id"))
+		return
+	}
+	levelStr := c.Query("level")
+	level, err := strconv.Atoi(levelStr)
+	if err != nil || (level != 1 && level != 2) {
+		common.ApiError(c, errors.New("invalid level"))
+		return
+	}
+
+	users, err := model.GetInvitedUsersByLevel(userId, level)
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	common.ApiSuccess(c, users)
+}
