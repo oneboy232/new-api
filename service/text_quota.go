@@ -12,8 +12,10 @@ import (
 	"github.com/QuantumNous/new-api/model"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/QuantumNous/new-api/setting/ratio_setting"
 	"github.com/QuantumNous/new-api/types"
 
+	"github.com/bytedance/gopkg/util/gopool"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )
@@ -40,6 +42,8 @@ type textQuotaSummary struct {
 	CacheCreationRatio       float64
 	CacheCreationRatio5m     float64
 	CacheCreationRatio1h     float64
+	CalibrationRatio         float64
+	Discount                 float64
 	Quota                    int
 	IsClaudeUsageSemantic    bool
 	UsageSemantic            string
@@ -95,6 +99,12 @@ func calculateTextQuotaSummary(ctx *gin.Context, relayInfo *relaycommon.RelayInf
 	}
 	summary.IsClaudeUsageSemantic = summary.UsageSemantic == "anthropic"
 
+	if relayInfo.ChannelOtherSettings.ModelCalibrationRatios != nil {
+		if cr, ok := relayInfo.ChannelOtherSettings.ModelCalibrationRatios[relayInfo.OriginModelName]; ok && cr > 0 {
+			summary.CalibrationRatio = cr
+		}
+	}
+
 	if usage == nil {
 		usage = &dto.Usage{
 			PromptTokens:     relayInfo.GetEstimatePromptTokens(),
@@ -112,6 +122,19 @@ func calculateTextQuotaSummary(ctx *gin.Context, relayInfo *relaycommon.RelayInf
 	summary.CacheCreationTokens1h = usage.ClaudeCacheCreation1hTokens
 	summary.ImageTokens = usage.PromptTokensDetails.ImageTokens
 	summary.AudioTokens = usage.PromptTokensDetails.AudioTokens
+
+	if summary.CalibrationRatio > 0 && summary.CalibrationRatio != 1 {
+		summary.PromptTokens = int(float64(summary.PromptTokens) * summary.CalibrationRatio)
+		summary.CompletionTokens = int(float64(summary.CompletionTokens) * summary.CalibrationRatio)
+		summary.TotalTokens = summary.PromptTokens + summary.CompletionTokens
+		summary.CacheTokens = int(float64(summary.CacheTokens) * summary.CalibrationRatio)
+		summary.CacheCreationTokens = int(float64(summary.CacheCreationTokens) * summary.CalibrationRatio)
+		summary.CacheCreationTokens5m = int(float64(summary.CacheCreationTokens5m) * summary.CalibrationRatio)
+		summary.CacheCreationTokens1h = int(float64(summary.CacheCreationTokens1h) * summary.CalibrationRatio)
+		summary.ImageTokens = int(float64(summary.ImageTokens) * summary.CalibrationRatio)
+		summary.AudioTokens = int(float64(summary.AudioTokens) * summary.CalibrationRatio)
+	}
+
 	legacyClaudeDerived := isLegacyClaudeDerivedOpenAIUsage(relayInfo, usage)
 	isOpenRouterClaudeBilling := relayInfo.ChannelMeta != nil &&
 		relayInfo.ChannelType == constant.ChannelTypeOpenRouter &&
@@ -278,6 +301,20 @@ func calculateTextQuotaSummary(ctx *gin.Context, relayInfo *relaycommon.RelayInf
 		summary.Quota = 1
 	}
 
+	if summary.Quota > 0 {
+		user, err := model.GetUserById(relayInfo.UserId, false)
+		if err == nil && user.SpendLevel != "" {
+			discount := ratio_setting.GetDiscountBySpendLevel(user.SpendLevel)
+			if discount > 0 && discount < 1 {
+				summary.Discount = discount
+				summary.Quota = int(decimal.NewFromInt(int64(summary.Quota)).Mul(decimal.NewFromFloat(discount)).Round(0).IntPart())
+				if summary.Quota == 0 {
+					summary.Quota = 1
+				}
+			}
+		}
+	}
+
 	return summary
 }
 
@@ -355,6 +392,9 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 	} else {
 		other = GenerateTextOtherInfo(ctx, relayInfo, summary.ModelRatio, summary.GroupRatio, summary.CompletionRatio, summary.CacheTokens, summary.CacheRatio, summary.ModelPrice, relayInfo.PriceData.GroupRatioInfo.GroupSpecialRatio)
 	}
+	if summary.Discount > 0 && summary.Discount < 1 {
+		other["discount"] = summary.Discount
+	}
 	if adminRejectReason != "" {
 		other["reject_reason"] = adminRejectReason
 	}
@@ -406,11 +446,13 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 		other["cache_write_tokens"] = cacheWriteTokens
 	}
 	if relayInfo.GetFinalRequestRelayFormat() != types.RelayFormatClaude && usage != nil && usage.UsageSource != "" && usage.InputTokens > 0 {
-		// input_tokens_total: explicit normalized total input used by the usage log UI.
-		// Only write this field when upstream/current conversion has already provided a
-		// reliable total input value and tagged the usage source. Do not infer it from
-		// prompt/cache fields here, otherwise old upstream payloads may be double-counted.
 		other["input_tokens_total"] = usage.InputTokens
+	}
+	// if summary.CalibrationRatio > 0 && summary.CalibrationRatio != 1 {
+	// 	other["calibration_ratio"] = summary.CalibrationRatio
+	// }
+	if summary.Discount > 0 && summary.Discount < 1 {
+		other["discount"] = summary.Discount
 	}
 
 	model.RecordConsumeLog(ctx, relayInfo.UserId, model.RecordConsumeLogParams{
@@ -427,4 +469,102 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 		Group:            relayInfo.UsingGroup,
 		Other:            other,
 	})
+
+	if summary.Quota > 0 && summary.TotalTokens > 0 {
+		quota := summary.Quota
+		userId := relayInfo.UserId
+		modelName := logModel
+		channelId := relayInfo.ChannelId
+		tokenId := relayInfo.TokenId
+		gopool.Go(func() {
+			processRebate(userId, quota, modelName, channelId, tokenId)
+		})
+	}
+}
+
+const (
+	RebateTypeNone = 0
+	RebateTypeL1   = 1
+	RebateTypeL2   = 2
+)
+
+func processRebate(userId int, quota int, modelName string, channelId int, tokenId int) {
+	user, err := model.GetUserById(userId, false)
+	if err != nil || user.InviterId == 0 {
+		return
+	}
+
+	if user.InviterId == 0 {
+		return
+	}
+
+	l1Inviter, err := model.GetUserById(user.InviterId, false)
+	if err != nil {
+		return
+	}
+
+	l1Rate, _ := ratio_setting.GetRebateRateByAffLevel(l1Inviter.AffLevel)
+	if l1Rate > 0 {
+		l1RebateQuota := int(decimal.NewFromInt(int64(quota)).Mul(decimal.NewFromFloat(l1Rate)).Round(0).IntPart())
+		if l1RebateQuota > 0 {
+			if err := model.IncreaseUserAffQuota(l1Inviter.Id, l1RebateQuota); err != nil {
+				common.SysError(fmt.Sprintf("failed to increase L1 aff_quota for user %d: %s", l1Inviter.Id, err.Error()))
+			} else {
+				model.RecordLog(l1Inviter.Id, model.LogTypeConsume, fmt.Sprintf("一级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l1Rate, logger.LogQuota(l1RebateQuota)))
+				model.RecordConsumeLogDirect(l1Inviter.Id, model.RecordConsumeLogParams{
+					ChannelId:        channelId,
+					PromptTokens:     0,
+					CompletionTokens: 0,
+					ModelName:        modelName,
+					TokenName:        "",
+					Quota:            l1RebateQuota,
+					Content:          fmt.Sprintf("一级返点：用户 %s 消费，返点倍率 %.4f", user.Username, l1Rate),
+					TokenId:          tokenId,
+					RebateType:       RebateTypeL1,
+					Other: map[string]interface{}{
+						"rebate_rate":     l1Rate,
+						"source_user_id":  userId,
+						"source_username": user.Username,
+						"source_quota":    quota,
+					},
+				})
+			}
+		}
+	}
+
+	if l1Inviter.InviterId != 0 {
+		l2Inviter, err := model.GetUserById(l1Inviter.InviterId, false)
+		if err != nil {
+			return
+		}
+		_, l2Rate := ratio_setting.GetRebateRateByAffLevel(l2Inviter.AffLevel)
+		if l2Rate > 0 {
+			l2RebateQuota := int(decimal.NewFromInt(int64(quota)).Mul(decimal.NewFromFloat(l2Rate)).Round(0).IntPart())
+			if l2RebateQuota > 0 {
+				if err := model.IncreaseUserAffQuota(l2Inviter.Id, l2RebateQuota); err != nil {
+					common.SysError(fmt.Sprintf("failed to increase L2 aff_quota for user %d: %s", l2Inviter.Id, err.Error()))
+				} else {
+					model.RecordLog(l2Inviter.Id, model.LogTypeConsume, fmt.Sprintf("二级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l2Rate, logger.LogQuota(l2RebateQuota)))
+					model.RecordConsumeLogDirect(l2Inviter.Id, model.RecordConsumeLogParams{
+						ChannelId:        channelId,
+						PromptTokens:     0,
+						CompletionTokens: 0,
+						ModelName:        modelName,
+						TokenName:        "",
+						Quota:            l2RebateQuota,
+						Content:          fmt.Sprintf("二级返点：用户 %s 消费，返点倍率 %.4f", user.Username, l2Rate),
+						TokenId:          tokenId,
+						RebateType:       RebateTypeL2,
+						Other: map[string]interface{}{
+							"rebate_rate":       l2Rate,
+							"source_user_id":    userId,
+							"source_username":   user.Username,
+							"source_quota":      quota,
+							"intermediate_user": l1Inviter.Username,
+						},
+					})
+				}
+			}
+		}
+	}
 }

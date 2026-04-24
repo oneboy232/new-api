@@ -1671,6 +1671,7 @@ export function renderModelPrice(
   imageGenerationCall = false,
   imageGenerationCallPrice = 0,
   displayMode = 'price',
+  discount = 1.0,
 ) {
   const { ratio: effectiveGroupRatio, label: ratioLabel } = getEffectiveRatio(
     groupRatio,
@@ -1896,6 +1897,16 @@ export function renderModelPrice(
           total: formatBillingDisplayPrice(price, rate),
         },
       ),
+      discount > 0 && discount < 1
+        ? buildBillingText(
+            '消费等级折扣：{{discount}}，折扣后金额：{{symbol}}{{discountedTotal}}',
+            {
+              discount: `${(discount * 100).toFixed(0)}%`,
+              symbol,
+              discountedTotal: formatBillingDisplayPrice(price * discount, rate),
+            },
+          )
+        : null,
     ];
 
     return renderBillingArticle(billingLines);
@@ -2101,6 +2112,15 @@ export function renderModelPrice(
     buildBillingText('合计：{{total}}', {
       total: renderDisplayAmountFromUsd(totalAmount),
     }),
+    discount > 0 && discount < 1
+      ? buildBillingText(
+          '消费等级折扣：{{discount}}，折扣后金额：{{discountedTotal}}',
+          {
+            discount: `${(discount * 100).toFixed(0)}%`,
+            discountedTotal: renderDisplayAmountFromUsd(totalAmount * discount),
+          },
+        )
+      : null,
   ]);
 }
 
@@ -2118,6 +2138,7 @@ export function renderLogContent(
   fileSearch = false,
   fileSearchCallCount = 0,
   displayMode = 'price',
+  discount = 1.0,
 ) {
   const {
     ratio,
@@ -2184,19 +2205,33 @@ export function renderLogContent(
       },
     );
     parts.push(getGroupRatioText(groupRatio, user_group_ratio));
+    if (discount > 0 && discount < 1) {
+      parts.push(
+        i18next.t('消费等级折扣：{{discount}}', {
+          discount: `${(discount * 100).toFixed(0)}%`,
+        }),
+      );
+    }
     return joinBillingSummary(parts);
   }
 
   if (modelPrice !== -1) {
-    return i18next.t('模型价格 {{symbol}}{{price}}，{{ratioType}} {{ratio}}', {
+    const baseText = i18next.t('模型价格 {{symbol}}{{price}}，{{ratioType}} {{ratio}}', {
       symbol: symbol,
       price: (modelPrice * rate).toFixed(6),
       ratioType: ratioLabel,
       ratio,
     });
+    if (discount > 0 && discount < 1) {
+      return baseText + '，' + i18next.t('消费等级折扣：{{discount}}', {
+        discount: `${(discount * 100).toFixed(0)}%`,
+      });
+    }
+    return baseText;
   } else {
+    let baseText;
     if (image) {
-      return i18next.t(
+      baseText = i18next.t(
         '模型倍率 {{modelRatio}}，缓存倍率 {{cacheRatio}}，输出倍率 {{completionRatio}}，图片输入倍率 {{imageRatio}}，{{ratioType}} {{ratio}}',
         {
           modelRatio: modelRatio,
@@ -2208,7 +2243,7 @@ export function renderLogContent(
         },
       );
     } else if (webSearch) {
-      return i18next.t(
+      baseText = i18next.t(
         '模型倍率 {{modelRatio}}，缓存倍率 {{cacheRatio}}，输出倍率 {{completionRatio}}，{{ratioType}} {{ratio}}，Web 搜索调用 {{webSearchCallCount}} 次',
         {
           modelRatio: modelRatio,
@@ -2220,7 +2255,7 @@ export function renderLogContent(
         },
       );
     } else {
-      return i18next.t(
+      baseText = i18next.t(
         '模型倍率 {{modelRatio}}，缓存倍率 {{cacheRatio}}，输出倍率 {{completionRatio}}，{{ratioType}} {{ratio}}',
         {
           modelRatio: modelRatio,
@@ -2231,6 +2266,12 @@ export function renderLogContent(
         },
       );
     }
+    if (discount > 0 && discount < 1) {
+      return baseText + '，' + i18next.t('消费等级折扣：{{discount}}', {
+        discount: `${(discount * 100).toFixed(0)}%`,
+      });
+    }
+    return baseText;
   }
 }
 

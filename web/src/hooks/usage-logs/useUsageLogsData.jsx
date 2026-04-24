@@ -105,6 +105,7 @@ export const useLogsData = () => {
       timestamp2string(now.getTime() / 1000 + 3600),
     ],
     logType: '0',
+    rebateType: '0',
   };
 
   // Get default column visibility based on user role
@@ -257,6 +258,7 @@ export const useLogsData = () => {
       group: formValues.group || '',
       request_id: formValues.request_id || '',
       logType: formValues.logType ? parseInt(formValues.logType) : 0,
+      rebateType: formValues.rebateType ? parseInt(formValues.rebateType) : 0,
     };
   };
 
@@ -460,6 +462,7 @@ export const useLogsData = () => {
                 other.file_search || false,
                 other.file_search_call_count || 0,
                 billingDisplayMode,
+                other?.discount || 1.0,
               ),
         });
         if (logs[i]?.content) {
@@ -567,6 +570,7 @@ export const useLogsData = () => {
               other?.image_generation_call || false,
               other?.image_generation_call_price || 0,
               billingDisplayMode,
+              other?.discount || 1.0,
             );
           }
           expandDataLocal.push({
@@ -735,6 +739,7 @@ export const useLogsData = () => {
       group,
       request_id,
       logType: formLogType,
+      rebateType: formRebateType,
     } = getFormValues();
 
     const currentLogType =
@@ -747,9 +752,9 @@ export const useLogsData = () => {
     let localStartTimestamp = Date.parse(start_timestamp) / 1000;
     let localEndTimestamp = Date.parse(end_timestamp) / 1000;
     if (isAdminUser) {
-      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&group=${group}&request_id=${request_id}`;
+      url = `/api/log/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&username=${username}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&channel=${channel}&group=${group}&request_id=${request_id}&rebate_type=${formRebateType}`;
     } else {
-      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&group=${group}&request_id=${request_id}`;
+      url = `/api/log/self/?p=${startIdx}&page_size=${pageSize}&type=${currentLogType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}&group=${group}&request_id=${request_id}&rebate_type=${formRebateType}`;
     }
     url = encodeURI(url);
     const res = await API.get(url);

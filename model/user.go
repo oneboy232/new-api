@@ -942,6 +942,23 @@ func IncreaseUserQuota(id int, quota int, db bool) (err error) {
 	return increaseUserQuota(id, quota)
 }
 
+func IncreaseUserAffQuota(id int, quota int) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
+	var user User
+	err = DB.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return err
+	}
+	newAffQuota := user.AffQuota + quota
+	newAffLevel := ratio_setting.GetAffLevelByAffQuota(newAffQuota)
+	return DB.Model(&User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"aff_quota": gorm.Expr("aff_quota + ?", quota),
+		"aff_level": newAffLevel,
+	}).Error
+}
+
 func increaseUserQuota(id int, quota int) (err error) {
 	err = DB.Model(&User{}).Where("id = ?", id).Update("quota", gorm.Expr("quota + ?", quota)).Error
 	if err != nil {

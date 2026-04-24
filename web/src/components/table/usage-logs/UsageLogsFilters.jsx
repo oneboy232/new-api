@@ -126,8 +126,8 @@ const LogsFilters = ({
 
         {/* 操作按钮区域 */}
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3'>
-          {/* 日志类型选择器 */}
-          <div className='w-full sm:w-auto'>
+          <div className='flex flex-col sm:flex-row gap-2 w-full sm:w-auto'>
+            {/* 日志类型选择器 */}
             <Form.Select
               field='logType'
               placeholder={t('日志类型')}
@@ -149,6 +149,25 @@ const LogsFilters = ({
               <Form.Select.Option value='4'>{t('系统')}</Form.Select.Option>
               <Form.Select.Option value='5'>{t('错误')}</Form.Select.Option>
               <Form.Select.Option value='6'>{t('退款')}</Form.Select.Option>
+            </Form.Select>
+
+            {/* 返点类型选择器 */}
+            <Form.Select
+              field='rebateType'
+              placeholder={t('返点类型')}
+              className='w-full sm:w-auto min-w-[120px]'
+              showClear
+              pure
+              onChange={() => {
+                setTimeout(() => {
+                  refresh();
+                }, 0);
+              }}
+              size='small'
+            >
+              <Form.Select.Option value='0'>{t('非返点')}</Form.Select.Option>
+              <Form.Select.Option value='1'>{t('一级返点')}</Form.Select.Option>
+              <Form.Select.Option value='2'>{t('二级返点')}</Form.Select.Option>
             </Form.Select>
           </div>
 
