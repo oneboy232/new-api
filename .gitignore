@@ -11,8 +11,7 @@ logs
 # web/dist
 .env
 one-api
-bin/new-api
-# new-api
+new-api
 /__debug_bin*
 .DS_Store
 tiktoken_cache

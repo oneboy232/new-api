@@ -49,7 +49,7 @@ type User struct {
 	AffHistoryQuota  int            `json:"aff_history_quota" gorm:"type:int;default:0;column:aff_history"`         // 邀请历史额度
 	AffWithdrawQuota int            `json:"aff_withdraw_quota" gorm:"type:int;default:0;column:aff_withdraw_quota"` // 提现额度
 	SpendLevel       string         `json:"spend_level" gorm:"type:varchar(32);default:'';column:spend_level"`      // 消费等级
-	InviterId        int            `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	InviterId        int            `json:"inviter_id" gorm:"type:int;default:0;column:inviter_id;index"`
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 	LinuxDOId        string         `json:"linux_do_id" gorm:"column:linux_do_id;index"`
 	Setting          string         `json:"setting" gorm:"type:text;column:setting"`
@@ -441,6 +441,7 @@ func (user *User) Insert(inviterId int) error {
 	user.Quota = common.QuotaForNewUser
 	//user.SetAccessToken(common.GetUUID())
 	user.AffCode = common.GetRandomString(4)
+	user.InviterId = inviterId
 
 	// 初始化用户设置，包括默认的边栏配置
 	if user.Setting == "" {
@@ -478,10 +479,9 @@ func (user *User) Insert(inviterId int) error {
 			RecordLog(user.Id, LogTypeSystem, fmt.Sprintf("使用邀请码赠送 %s", logger.LogQuota(common.QuotaForInvitee)))
 		}
 		if common.QuotaForInviter > 0 {
-			//_ = IncreaseUserQuota(inviterId, common.QuotaForInviter)
 			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", logger.LogQuota(common.QuotaForInviter)))
-			_ = inviteUser(inviterId)
 		}
+		_ = inviteUser(inviterId)
 	}
 	return nil
 }
@@ -499,6 +499,7 @@ func (user *User) InsertWithTx(tx *gorm.DB, inviterId int) error {
 	}
 	user.Quota = common.QuotaForNewUser
 	user.AffCode = common.GetRandomString(4)
+	user.InviterId = inviterId
 
 	// 初始化用户设置
 	if user.Setting == "" {
@@ -540,8 +541,8 @@ func (user *User) FinalizeOAuthUserCreation(inviterId int) {
 		}
 		if common.QuotaForInviter > 0 {
 			RecordLog(inviterId, LogTypeSystem, fmt.Sprintf("邀请用户赠送 %s", logger.LogQuota(common.QuotaForInviter)))
-			_ = inviteUser(inviterId)
 		}
+		_ = inviteUser(inviterId)
 	}
 }
 
