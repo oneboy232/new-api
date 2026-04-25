@@ -510,7 +510,6 @@ func processRebate(userId int, quota int, modelName string, channelId int, token
 			if err := model.IncreaseUserAffQuota(l1Inviter.Id, l1RebateQuota); err != nil {
 				common.SysError(fmt.Sprintf("failed to increase L1 aff_quota for user %d: %s", l1Inviter.Id, err.Error()))
 			} else {
-				model.RecordLog(l1Inviter.Id, model.LogTypeConsume, fmt.Sprintf("一级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l1Rate, logger.LogQuota(l1RebateQuota)))
 				model.RecordConsumeLogDirect(l1Inviter.Id, model.RecordConsumeLogParams{
 					ChannelId:        channelId,
 					PromptTokens:     0,
@@ -518,7 +517,7 @@ func processRebate(userId int, quota int, modelName string, channelId int, token
 					ModelName:        modelName,
 					TokenName:        "",
 					Quota:            l1RebateQuota,
-					Content:          fmt.Sprintf("一级返点：用户 %s 消费，返点倍率 %.4f", user.Username, l1Rate),
+					Content:          fmt.Sprintf("一级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l1Rate, logger.LogQuota(l1RebateQuota)),
 					TokenId:          tokenId,
 					RebateType:       RebateTypeL1,
 					Other: map[string]interface{}{
@@ -544,7 +543,6 @@ func processRebate(userId int, quota int, modelName string, channelId int, token
 				if err := model.IncreaseUserAffQuota(l2Inviter.Id, l2RebateQuota); err != nil {
 					common.SysError(fmt.Sprintf("failed to increase L2 aff_quota for user %d: %s", l2Inviter.Id, err.Error()))
 				} else {
-					model.RecordLog(l2Inviter.Id, model.LogTypeConsume, fmt.Sprintf("二级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l2Rate, logger.LogQuota(l2RebateQuota)))
 					model.RecordConsumeLogDirect(l2Inviter.Id, model.RecordConsumeLogParams{
 						ChannelId:        channelId,
 						PromptTokens:     0,
@@ -552,7 +550,7 @@ func processRebate(userId int, quota int, modelName string, channelId int, token
 						ModelName:        modelName,
 						TokenName:        "",
 						Quota:            l2RebateQuota,
-						Content:          fmt.Sprintf("二级返点：用户 %s 消费，返点倍率 %.4f", user.Username, l2Rate),
+						Content:          fmt.Sprintf("二级返点：用户 %s 消费 %s，返点倍率 %.4f，返点金额 %s", user.Username, logger.LogQuota(quota), l2Rate, logger.LogQuota(l2RebateQuota)),
 						TokenId:          tokenId,
 						RebateType:       RebateTypeL2,
 						Other: map[string]interface{}{
