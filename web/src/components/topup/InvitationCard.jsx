@@ -84,7 +84,7 @@ const InvitationCard = ({
   ];
 
   return (
-    <Card className='!rounded-2xl shadow-sm border-0'>
+    <Card className='!rounded-2xl shadow-sm border-0 w-full'>
       {/* 卡片头部 */}
       <div className='flex items-center mb-4'>
         <Avatar size='small' color='green' className='mr-3 shadow-md'>
@@ -126,6 +126,7 @@ const InvitationCard = ({
                       theme='solid'
                       size='small'
                       disabled={
+                        userState?.user?.role < 10 ||
                         !userState?.user?.aff_quota ||
                         userState?.user?.aff_quota <= 0
                       }
@@ -153,9 +154,9 @@ const InvitationCard = ({
                 </div>
 
                 {/* 统计数据 */}
-                <div className='flex flex-col gap-4 mt-4'>
+                <div className='flex flex-col gap-6 mt-4'>
                   {/* 第一行：金额和人数 */}
-                  <div className='grid grid-cols-4 gap-4'>
+                  <div className='grid grid-cols-4 gap-6'>
                     {/* 返点金额 */}
                     <div className='text-center'>
                       <div
@@ -260,7 +261,7 @@ const InvitationCard = ({
                   </div>
 
                   {/* 第二行：等级和返点率 */}
-                  <div className='grid grid-cols-4 gap-4'>
+                  <div className='grid grid-cols-4 gap-6'>
                     {/* 代理等级 */}
                     <div className='text-center'>
                       <div
@@ -326,6 +327,7 @@ const InvitationCard = ({
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           }

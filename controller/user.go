@@ -352,6 +352,10 @@ func TransferAffToWithdrawQuota(c *gin.Context) {
 		common.ApiError(c, err)
 		return
 	}
+	if user.Role < common.RoleAdminUser {
+		common.ApiError(c, errors.New("仅管理员可提现"))
+		return
+	}
 	tran := TransferAffToWithdrawQuotaRequest{}
 	if err := c.ShouldBindJSON(&tran); err != nil {
 		common.ApiError(c, err)
