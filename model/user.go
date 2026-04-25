@@ -50,6 +50,7 @@ type User struct {
 	AffWithdrawQuota int            `json:"aff_withdraw_quota" gorm:"type:int;default:0;column:aff_withdraw_quota"` // 提现额度
 	SpendLevel       string         `json:"spend_level" gorm:"type:varchar(32);default:'';column:spend_level"`      // 消费等级
 	InviterId        int            `json:"inviter_id" gorm:"type:int;default:0;column:inviter_id;index"`
+	CreatedAt        int64          `json:"created_time" gorm:"autoCreateTime"`
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
 	LinuxDOId        string         `json:"linux_do_id" gorm:"column:linux_do_id;index"`
 	Setting          string         `json:"setting" gorm:"type:text;column:setting"`
