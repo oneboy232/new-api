@@ -439,13 +439,13 @@ export const useLogsData = () => {
           value: other.cache_creation_tokens,
         });
       }
-      if (logs[i].type === 2) {
+      if (logs[i].type === 2 && other != null) {
         expandDataLocal.push({
           key: t('日志详情'),
           value: other?.claude
             ? renderClaudeLogContent(
                 other?.model_ratio,
-                other.completion_ratio,
+                other?.completion_ratio,
                 other.model_price,
                 other.group_ratio,
                 other?.user_group_ratio,
