@@ -505,6 +505,19 @@ function getUsageLogDetailSummary(record, text, billingDisplayMode, t) {
   };
 }
 
+// 返点日志不需要展示的列
+const rebateExcludedKeys = new Set([
+  'channel',
+  'token',
+  'group',
+  'model',
+  'use_time',
+  'prompt',
+  'completion',
+  'cost',
+  'retry',
+]);
+
 export const getLogsColumns = ({
   t,
   COLUMN_KEYS,
@@ -513,7 +526,9 @@ export const getLogsColumns = ({
   openChannelAffinityUsageCacheModal,
   isAdminUser,
   billingDisplayMode = 'price',
+  rebateType = 0,
 }) => {
+  const isRebateLog = rebateType !== 0;
   return [
     {
       key: COLUMN_KEYS.TIME,
@@ -958,5 +973,5 @@ export const getLogsColumns = ({
         return renderCompactDetailSummary(detailSummary.segments);
       },
     },
-  ];
+  ].filter((col) => !isRebateLog || !rebateExcludedKeys.has(col.key));
 };

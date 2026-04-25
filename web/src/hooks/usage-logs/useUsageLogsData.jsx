@@ -73,6 +73,7 @@ export const useLogsData = () => {
   const [logCount, setLogCount] = useState(0);
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [logType, setLogType] = useState(0);
+  const [rebateType, setRebateType] = useState(0);
 
   // User and admin
   const isAdminUser = isAdmin();
@@ -383,6 +384,18 @@ export const useLogsData = () => {
       logs[i].key = logs[i].id;
       let other = getLogOther(logs[i].other);
       let expandDataLocal = [];
+
+      // 返点日志简化展示，不展示渠道信息、日志详情、计费过程等
+      if (logs[i].rebate_type !== 0) {
+        if (logs[i].content) {
+          expandDataLocal.push({
+            key: t('返点信息'),
+            value: logs[i].content,
+          });
+        }
+        expandDatesLocal[logs[i].key] = expandDataLocal;
+        continue;
+      }
 
       if (isAdminUser && (logs[i].type === 0 || logs[i].type === 2 || logs[i].type === 6)) {
         expandDataLocal.push({
@@ -742,6 +755,8 @@ export const useLogsData = () => {
       rebateType: formRebateType,
     } = getFormValues();
 
+    setRebateType(formRebateType);
+
     const currentLogType =
       customLogType !== null
         ? customLogType
@@ -843,6 +858,7 @@ export const useLogsData = () => {
     logCount,
     pageSize,
     logType,
+    rebateType,
     stat,
     isAdminUser,
 

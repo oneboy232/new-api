@@ -396,9 +396,7 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 	if group != "" {
 		tx = tx.Where("logs."+logGroupCol+" = ?", group)
 	}
-	if rebateType != 0 {
-		tx = tx.Where("logs.rebate_type = ?", rebateType)
-	}
+	tx = tx.Where("logs.rebate_type = ?", rebateType)
 	err = tx.Model(&Log{}).Limit(logSearchCountLimit).Count(&total).Error
 	if err != nil {
 		common.SysError("failed to count user logs: " + err.Error())

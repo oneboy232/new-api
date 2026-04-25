@@ -46,6 +46,7 @@ const LogsTable = (logsData) => {
     billingDisplayMode,
     t,
     COLUMN_KEYS,
+    rebateType,
   } = logsData;
 
   // Get all columns
@@ -58,6 +59,7 @@ const LogsTable = (logsData) => {
       openChannelAffinityUsageCacheModal,
       isAdminUser,
       billingDisplayMode,
+      rebateType,
     });
   }, [
     t,
@@ -67,6 +69,7 @@ const LogsTable = (logsData) => {
     openChannelAffinityUsageCacheModal,
     isAdminUser,
     billingDisplayMode,
+    rebateType,
   ]);
 
   // Filter columns based on visibility settings
