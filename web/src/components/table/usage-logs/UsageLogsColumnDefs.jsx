@@ -946,6 +946,7 @@ export const getLogsColumns = ({
       fixed: 'right',
       width: 200,
       render: (text, record, index) => {
+        if (isRebateLog) return <></>;
         const detailSummary = getUsageLogDetailSummary(
           record,
           text,
