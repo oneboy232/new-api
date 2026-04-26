@@ -26,7 +26,7 @@ import (
 const (
 	waffoPancakeAuthBaseURL      = "https://waffo-pancake-auth-service.vercel.app"
 	waffoPancakeCheckoutPath     = "/v1/actions/checkout/create-session"
-	waffoPancakeDefaultTolerance = 5 * time.Minute
+	waffoPancakeDefaultTolerance = 60 * time.Second
 )
 
 type WaffoPancakePriceSnapshot struct {

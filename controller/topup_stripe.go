@@ -285,7 +285,11 @@ func fulfillOrder(ctx context.Context, event stripe.Event, referenceId string, c
 		return
 	}
 
-	total, _ := strconv.ParseFloat(event.GetObjectValue("amount_total"), 64)
+	total, err := strconv.ParseFloat(event.GetObjectValue("amount_total"), 64)
+	if err != nil {
+		logger.LogWarn(ctx, fmt.Sprintf("Stripe 充值成功但 amount_total 解析失败 trade_no=%s client_ip=%s error=%q", referenceId, callerIp, err.Error()))
+		return
+	}
 	currency := strings.ToUpper(event.GetObjectValue("currency"))
 	logger.LogInfo(ctx, fmt.Sprintf("Stripe 充值成功 trade_no=%s amount_total=%.2f currency=%s event_type=%s client_ip=%s", referenceId, total/100, currency, string(event.Type), callerIp))
 }

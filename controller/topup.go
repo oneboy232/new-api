@@ -305,26 +305,23 @@ func EpayNotify(c *gin.Context) {
 		return
 	}
 
+	if c.Request.Method != "POST" {
+		logger.LogWarn(c.Request.Context(), fmt.Sprintf("易支付 webhook 被拒绝 reason=only_post_allowed path=%q method=%s client_ip=%s", c.Request.RequestURI, c.Request.Method, c.ClientIP()))
+		_, _ = c.Writer.Write([]byte("fail"))
+		return
+	}
+
 	var params map[string]string
 
-	if c.Request.Method == "POST" {
-		// POST 请求：从 POST body 解析参数
-		if err := c.Request.ParseForm(); err != nil {
-			logger.LogError(c.Request.Context(), fmt.Sprintf("易支付 webhook POST 表单解析失败 path=%q client_ip=%s error=%q", c.Request.RequestURI, c.ClientIP(), err.Error()))
-			_, _ = c.Writer.Write([]byte("fail"))
-			return
-		}
-		params = lo.Reduce(lo.Keys(c.Request.PostForm), func(r map[string]string, t string, i int) map[string]string {
-			r[t] = c.Request.PostForm.Get(t)
-			return r
-		}, map[string]string{})
-	} else {
-		// GET 请求：从 URL Query 解析参数
-		params = lo.Reduce(lo.Keys(c.Request.URL.Query()), func(r map[string]string, t string, i int) map[string]string {
-			r[t] = c.Request.URL.Query().Get(t)
-			return r
-		}, map[string]string{})
+	if err := c.Request.ParseForm(); err != nil {
+		logger.LogError(c.Request.Context(), fmt.Sprintf("易支付 webhook POST 表单解析失败 path=%q client_ip=%s error=%q", c.Request.RequestURI, c.ClientIP(), err.Error()))
+		_, _ = c.Writer.Write([]byte("fail"))
+		return
 	}
+	params = lo.Reduce(lo.Keys(c.Request.PostForm), func(r map[string]string, t string, i int) map[string]string {
+		r[t] = c.Request.PostForm.Get(t)
+		return r
+	}, map[string]string{})
 	logger.LogInfo(c.Request.Context(), fmt.Sprintf("易支付 webhook 收到请求 path=%q client_ip=%s method=%s params=%q", c.Request.RequestURI, c.ClientIP(), c.Request.Method, common.GetJsonString(params)))
 
 	if len(params) == 0 {
@@ -371,6 +368,13 @@ func EpayNotify(c *gin.Context) {
 		}
 		if topUp.PaymentProvider != model.PaymentProviderEpay {
 			logger.LogWarn(c.Request.Context(), fmt.Sprintf("易支付 订单支付网关不匹配 trade_no=%s order_provider=%s callback_type=%s client_ip=%s", verifyInfo.ServiceTradeNo, topUp.PaymentProvider, verifyInfo.Type, c.ClientIP()))
+			return
+		}
+		// 金额交叉验证：防止金额篡改
+		actualMoney := verifyInfo.Money
+		expectedMoney := strconv.FormatFloat(topUp.Money, 'f', 2, 64)
+		if actualMoney != expectedMoney {
+			logger.LogWarn(c.Request.Context(), fmt.Sprintf("易支付 实际支付金额与订单金额不匹配 trade_no=%s expected=%s actual=%s client_ip=%s", topUp.TradeNo, expectedMoney, actualMoney, c.ClientIP()))
 			return
 		}
 		if topUp.Status == common.TopUpStatusPending {
@@ -480,6 +484,7 @@ func GetAllTopUps(c *gin.Context) {
 
 type AdminCompleteTopupRequest struct {
 	TradeNo string `json:"trade_no"`
+	Confirm bool   `json:"confirm"`
 }
 
 // AdminCompleteTopUp 管理员补单接口
@@ -487,6 +492,11 @@ func AdminCompleteTopUp(c *gin.Context) {
 	var req AdminCompleteTopupRequest
 	if err := c.ShouldBindJSON(&req); err != nil || req.TradeNo == "" {
 		common.ApiErrorMsg(c, "参数错误")
+		return
+	}
+
+	if !req.Confirm {
+		common.ApiErrorMsg(c, "请确认补单操作")
 		return
 	}
 
