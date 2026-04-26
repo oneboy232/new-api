@@ -1,6 +1,10 @@
 package operation_setting
 
-import "github.com/QuantumNous/new-api/setting/config"
+import (
+	"strings"
+
+	"github.com/QuantumNous/new-api/setting/config"
+)
 
 // 额度展示类型
 const (
@@ -20,6 +24,8 @@ type GeneralSetting struct {
 	CustomCurrencySymbol string `json:"custom_currency_symbol"`
 	// 自定义货币与美元汇率（1 USD = X Custom）
 	CustomCurrencyExchangeRate float64 `json:"custom_currency_exchange_rate"`
+	// 飞书 Webhook 地址，支持多行（每行一个 URL），充值成功时通知到此地址
+	FeishuWebhookUrl string `json:"feishu_webhook_url"`
 }
 
 // 默认配置
@@ -71,6 +77,19 @@ func GetCurrencySymbol() string {
 	default:
 		return ""
 	}
+}
+
+// GetFeishuWebhookUrls 返回飞书 Webhook URL 列表，支持多行配置
+func GetFeishuWebhookUrls() []string {
+	urls := strings.Split(generalSetting.FeishuWebhookUrl, "\n")
+	var result []string
+	for _, u := range urls {
+		u = strings.TrimSpace(u)
+		if u != "" {
+			result = append(result, u)
+		}
+	}
+	return result
 }
 
 // GetUsdToCurrencyRate 返回 1 USD = X <currency> 的 X（TOKENS 不适用）

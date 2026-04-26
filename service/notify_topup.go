@@ -1,0 +1,56 @@
+package service
+
+import (
+	"fmt"
+
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/logger"
+	"github.com/QuantumNous/new-api/model"
+)
+
+// NotifyTopupByTradeNo 根据订单号查询充值记录，并推送充值成功通知给用户。
+// 用户需在通知设置中配置通知方式（webhook/bark/gotify/email）后才能收到。
+func NotifyTopupByTradeNo(tradeNo string) {
+	if tradeNo == "" {
+		return
+	}
+	topUp := model.GetTopUpByTradeNo(tradeNo)
+	if topUp == nil {
+		return
+	}
+	if topUp.Status != common.TopUpStatusSuccess {
+		return
+	}
+
+	user, err := model.GetUserById(topUp.UserId, false)
+	if err != nil || user == nil {
+		return
+	}
+
+	userSetting := user.GetSetting()
+	if userSetting.NotifyType == "" {
+		return // 用户未配置通知方式，跳过
+	}
+
+	// 格式化充值信息
+	providerName := topUp.PaymentProvider
+	if providerName == "" {
+		providerName = topUp.PaymentMethod
+	}
+
+	title := "充值成功通知"
+	content := fmt.Sprintf("充值成功！\n用户：%s\n金额：%.2f\n到账额度：%v\n支付方式：%s",
+		user.Username,
+		topUp.Money,
+		logger.FormatQuota(int(topUp.Amount)),
+		providerName)
+
+	notification := dto.NewNotify(dto.NotifyTypeTopup, title, content, nil)
+	if err := NotifyUser(topUp.UserId, user.Email, userSetting, notification); err != nil {
+		common.SysLog(fmt.Sprintf("failed to send topup notification to user %d: %s", topUp.UserId, err.Error()))
+	}
+
+	// 系统级飞书通知：管理员配置后，所有充值成功都会发送到飞书
+	SendFeishuNotify(title, content)
+}

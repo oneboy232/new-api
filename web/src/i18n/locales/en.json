@@ -666,6 +666,8 @@
     "充值金额折扣配置": "Top Up amount discount configuration",
     "充值金额折扣配置不是合法的 JSON 对象": "Top Up amount discount configuration is not a valid JSON object",
     "充值链接": "Top Up Link",
+    "飞书 Webhook 地址": "Feishu Webhook URL",
+    "支持多行，每行一个飞书 Webhook 地址": "Supports multiple URLs, one Feishu webhook URL per line",
     "充值额度": "Top Up Quota",
     "先填写配置，再自动填充 OAuth 端点，能显著减少手工输入": "Fill in configuration first, then auto-fill OAuth endpoints to significantly reduce manual input",
     "先搜索，再一键复制字段名或填入当前规则。字段名为系统内部路径，可直接用于路径 / 来源 / 目标。": "Search first, then copy field names or fill into the current rule with one click. Field names are internal system paths that can be used directly for path / source / target.",

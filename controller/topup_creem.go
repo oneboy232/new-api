@@ -12,6 +12,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting"
 	"io"
 	"net/http"
@@ -349,6 +350,8 @@ func handleCheckoutCompleted(c *gin.Context, event *CreemWebhookEvent) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+
+	go service.NotifyTopupByTradeNo(referenceId)
 
 	logger.LogInfo(c.Request.Context(), fmt.Sprintf("Creem 充值成功 trade_no=%s creem_order_id=%s quota=%d money=%.2f client_ip=%s", referenceId, event.Object.Order.Id, topUp.Amount, topUp.Money, c.ClientIP()))
 	c.Status(http.StatusOK)
