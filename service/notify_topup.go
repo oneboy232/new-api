@@ -5,7 +5,6 @@ import (
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
 	"github.com/QuantumNous/new-api/model"
 )
 
@@ -40,17 +39,14 @@ func NotifyTopupByTradeNo(tradeNo string) {
 	}
 
 	title := "充值成功通知"
-	content := fmt.Sprintf("充值成功！\n用户：%s\n金额：%.2f\n到账额度：%v\n支付方式：%s",
+	content := fmt.Sprintf("充值成功！\n用户：%s\n金额：$%.2f\n到账额度：%d\n支付方式：%s",
 		user.Username,
 		topUp.Money,
-		logger.FormatQuota(int(topUp.Amount)),
+		topUp.Amount,
 		providerName)
 
 	notification := dto.NewNotify(dto.NotifyTypeTopup, title, content, nil)
 	if err := NotifyUser(topUp.UserId, user.Email, userSetting, notification); err != nil {
 		common.SysLog(fmt.Sprintf("failed to send topup notification to user %d: %s", topUp.UserId, err.Error()))
 	}
-
-	// 系统级飞书通知：管理员配置后，所有充值成功都会发送到飞书
-	SendFeishuNotify(title, content)
 }

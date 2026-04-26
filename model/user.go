@@ -936,6 +936,9 @@ func GetUserSetting(id int, fromDB bool) (settingMap dto.UserSetting, err error)
 	return userBase.GetSetting(), nil
 }
 
+// OnQuotaIncreased 配额增加时的回调，由 service 包在 init 中注册
+var OnQuotaIncreased func(userId int, quota int)
+
 func IncreaseUserQuota(id int, quota int, db bool) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
@@ -948,9 +951,16 @@ func IncreaseUserQuota(id int, quota int, db bool) (err error) {
 	})
 	if !db && common.BatchUpdateEnabled {
 		addNewRecord(BatchUpdateTypeUserQuota, id, quota)
+		if OnQuotaIncreased != nil {
+			OnQuotaIncreased(id, quota)
+		}
 		return nil
 	}
-	return increaseUserQuota(id, quota)
+	err = increaseUserQuota(id, quota)
+	if err == nil && OnQuotaIncreased != nil {
+		OnQuotaIncreased(id, quota)
+	}
+	return err
 }
 
 func IncreaseUserAffQuota(id int, quota int) (err error) {

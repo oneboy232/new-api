@@ -118,6 +118,10 @@ func userCheckinWithTransaction(checkin *Checkin, userId int, quotaAwarded int) 
 		_ = cacheIncrUserQuota(userId, int64(quotaAwarded))
 	}()
 
+	if OnQuotaIncreased != nil {
+		OnQuotaIncreased(userId, quotaAwarded)
+	}
+
 	return checkin, nil
 }
 

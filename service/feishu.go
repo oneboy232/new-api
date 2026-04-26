@@ -8,9 +8,29 @@ import (
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/QuantumNous/new-api/setting/system_setting"
 )
+
+func init() {
+	// 注册配额增加回调，发送系统级飞书通知
+	model.OnQuotaIncreased = func(userId int, quota int) {
+		user, err := model.GetUserById(userId, false)
+		if err != nil || user == nil {
+			common.SysLog(fmt.Sprintf("failed to get user %d for quota increased notification: %s", userId, err.Error()))
+			return
+		}
+
+		amount := float64(quota) / common.QuotaPerUnit
+		content := fmt.Sprintf("用户：%s\n金额：$%.2f\n增加额度：%d",
+			user.Username,
+			amount,
+			quota)
+
+		SendFeishuNotify("配额增加通知", content)
+	}
+}
 
 // feishuCardMessage 飞书交互式卡片消息结构
 type feishuCardMessage struct {
