@@ -82,6 +82,11 @@ const OperationSetting = () => {
 
     /* 令牌设置 */
     'token_setting.max_user_tokens': 1000,
+
+    /* 充值时间窗口 */
+    'general_setting.topup_time_window_enabled': false,
+    'general_setting.topup_time_window_start': '08:00',
+    'general_setting.topup_time_window_end': '20:00',
   });
 
   let [loading, setLoading] = useState(false);

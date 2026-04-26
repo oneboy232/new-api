@@ -1,7 +1,9 @@
 package operation_setting
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/QuantumNous/new-api/setting/config"
 )
@@ -26,6 +28,10 @@ type GeneralSetting struct {
 	CustomCurrencyExchangeRate float64 `json:"custom_currency_exchange_rate"`
 	// 飞书 Webhook 地址，支持多行（每行一个 URL），充值成功时通知到此地址
 	FeishuWebhookUrl string `json:"feishu_webhook_url"`
+	// 充值时间窗口
+	TopupTimeWindowEnabled bool   `json:"topup_time_window_enabled"`
+	TopupTimeWindowStart   string `json:"topup_time_window_start"`
+	TopupTimeWindowEnd     string `json:"topup_time_window_end"`
 }
 
 // 默认配置
@@ -36,6 +42,9 @@ var generalSetting = GeneralSetting{
 	QuotaDisplayType:           QuotaDisplayTypeUSD,
 	CustomCurrencySymbol:       "¤",
 	CustomCurrencyExchangeRate: 1.0,
+	TopupTimeWindowEnabled:     false,
+	TopupTimeWindowStart:       "08:00",
+	TopupTimeWindowEnd:         "20:00",
 }
 
 func init() {
@@ -90,6 +99,42 @@ func GetFeishuWebhookUrls() []string {
 		}
 	}
 	return result
+}
+
+// IsInTopupTimeWindow 判断当前时间是否在充值时间窗口内
+// 返回 (true, "") 表示在窗口内或未启用
+// 返回 (false, "08:00 - 20:00") 表示不在窗口内，附带窗口时间
+func IsInTopupTimeWindow() (bool, string) {
+	gs := GetGeneralSetting()
+	if !gs.TopupTimeWindowEnabled {
+		return true, ""
+	}
+
+	start, err := time.Parse("15:04", gs.TopupTimeWindowStart)
+	if err != nil {
+		return true, ""
+	}
+	end, err := time.Parse("15:04", gs.TopupTimeWindowEnd)
+	if err != nil {
+		return true, ""
+	}
+
+	now := time.Now()
+	nowMinutes := now.Hour()*60 + now.Minute()
+	startMinutes := start.Hour()*60 + start.Minute()
+	endMinutes := end.Hour()*60 + end.Minute()
+
+	inWindow := false
+	if startMinutes <= endMinutes {
+		inWindow = nowMinutes >= startMinutes && nowMinutes < endMinutes
+	} else {
+		inWindow = nowMinutes >= startMinutes || nowMinutes < endMinutes
+	}
+
+	if inWindow {
+		return true, ""
+	}
+	return false, fmt.Sprintf("%s - %s", gs.TopupTimeWindowStart, gs.TopupTimeWindowEnd)
 }
 
 // GetUsdToCurrencyRate 返回 1 USD = X <currency> 的 X（TOKENS 不适用）

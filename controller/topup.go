@@ -107,9 +107,12 @@ func GetTopUpInfo(c *gin.Context) {
 		"min_topup":               operation_setting.MinTopUp,
 		"stripe_min_topup":        setting.StripeMinTopUp,
 		"waffo_min_topup":         setting.WaffoMinTopUp,
-		"waffo_pancake_min_topup": setting.WaffoPancakeMinTopUp,
-		"amount_options":          operation_setting.GetPaymentSetting().AmountOptions,
-		"discount":                operation_setting.GetPaymentSetting().AmountDiscount,
+		"waffo_pancake_min_topup":  setting.WaffoPancakeMinTopUp,
+		"amount_options":           operation_setting.GetPaymentSetting().AmountOptions,
+		"discount":                 operation_setting.GetPaymentSetting().AmountDiscount,
+		"topup_time_window_enabled": operation_setting.GetGeneralSetting().TopupTimeWindowEnabled,
+		"topup_time_window_start":   operation_setting.GetGeneralSetting().TopupTimeWindowStart,
+		"topup_time_window_end":     operation_setting.GetGeneralSetting().TopupTimeWindowEnd,
 	}
 	common.ApiSuccess(c, data)
 }
@@ -203,6 +206,10 @@ func RequestEpay(c *gin.Context) {
 
 	if !operation_setting.ContainsPayMethod(req.PaymentMethod) {
 		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "支付方式不存在"})
+		return
+	}
+
+	if !checkTopupTimeWindow(c) {
 		return
 	}
 

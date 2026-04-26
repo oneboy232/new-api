@@ -113,6 +113,10 @@ func RequestWaffoAmount(c *gin.Context) {
 		return
 	}
 
+	if !checkTopupTimeWindow(c) {
+		return
+	}
+
 	id := c.GetInt("id")
 	group, err := model.GetUserGroup(id, true)
 	if err != nil {

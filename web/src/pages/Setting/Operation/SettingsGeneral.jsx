@@ -59,6 +59,9 @@ export default function GeneralSettings(props) {
     DemoSiteEnabled: false,
     SelfUseModeEnabled: false,
     'token_setting.max_user_tokens': 1000,
+    'general_setting.topup_time_window_enabled': false,
+    'general_setting.topup_time_window_start': '08:00',
+    'general_setting.topup_time_window_end': '20:00',
   });
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
@@ -227,6 +230,12 @@ export default function GeneralSettings(props) {
     ) {
       currentInputs['general_setting.custom_currency_exchange_rate'] =
         props.options['general_setting.custom_currency_exchange_rate'];
+    }
+    // 补充未从后端返回的字段（新字段默认值）
+    for (let key in inputs) {
+      if (!(key in currentInputs)) {
+        currentInputs[key] = inputs[key];
+      }
     }
     setInputs(currentInputs);
     setInputsRow(structuredClone(currentInputs));
@@ -401,6 +410,39 @@ export default function GeneralSettings(props) {
                   onChange={handleFieldChange('SelfUseModeEnabled')}
                 />
               </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.Switch
+                  field={'general_setting.topup_time_window_enabled'}
+                  label={t('充值时间窗口')}
+                  extraText={t('开启后充值只能在设定的时间窗口内进行')}
+                  size='default'
+                  checkedText='｜'
+                  uncheckedText='〇'
+                  onChange={handleFieldChange('general_setting.topup_time_window_enabled')}
+                />
+              </Col>
+              {inputs['general_setting.topup_time_window_enabled'] && (
+                <>
+                  <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field={'general_setting.topup_time_window_start'}
+                      label={t('开始时间')}
+                      placeholder={'08:00'}
+                      onChange={handleFieldChange('general_setting.topup_time_window_start')}
+                      showClear
+                    />
+                  </Col>
+                  <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                    <Form.Input
+                      field={'general_setting.topup_time_window_end'}
+                      label={t('结束时间')}
+                      placeholder={'20:00'}
+                      onChange={handleFieldChange('general_setting.topup_time_window_end')}
+                      showClear
+                    />
+                  </Col>
+                </>
+              )}
             </Row>
             <Row gutter={16}>
               <Col xs={24} sm={12} md={8} lg={8} xl={8}>

@@ -96,6 +96,8 @@ const RechargeCard = ({
   activeSubscriptions = [],
   allSubscriptions = [],
   reloadSubscriptionSelf,
+  isInTopupTimeWindow,
+  topupTimeWindowStr,
 }) => {
   const onlineFormApiRef = useRef(null);
   const redeemFormApiRef = useRef(null);
@@ -105,6 +107,7 @@ const RechargeCard = ({
   const shouldShowSubscription =
     !subscriptionLoading && subscriptionPlans.length > 0;
   const regularPayMethods = payMethods || [];
+  const isInTimeWindow = isInTopupTimeWindow;
 
   useEffect(() => {
     if (initialTabSetRef.current) return;
@@ -269,6 +272,13 @@ const RechargeCard = ({
           <div className='py-8 flex justify-center'>
             <Spin size='large' />
           </div>
+        ) : !isInTimeWindow && topupTimeWindowStr ? (
+          <Banner
+            type='warning'
+            description={t('请在充值窗口{start} - {end}时间充值').replace('{start}', topupTimeWindowStr.split(' - ')[0]).replace('{end}', topupTimeWindowStr.split(' - ')[1])}
+            className='!rounded-xl'
+            closeIcon={null}
+          />
         ) : enableOnlineTopUp ||
           enableStripeTopUp ||
           enableCreemTopUp ||
@@ -366,7 +376,8 @@ const RechargeCard = ({
                               (!enableStripeTopUp && isStripe) ||
                               (!enableWaffoTopUp && isWaffo) ||
                               (!enableWaffoPancakeTopUp && isWaffoPancake) ||
-                              minTopupVal > Number(topUpCount || 0);
+                              minTopupVal > Number(topUpCount || 0) ||
+                              !isInTimeWindow;
 
                             const buttonEl = (
                               <Button

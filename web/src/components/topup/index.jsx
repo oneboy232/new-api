@@ -118,6 +118,34 @@ const TopUp = () => {
     discount: {},
   });
 
+  // 充值时间窗口
+  const [topupTimeWindowEnabled, setTopupTimeWindowEnabled] = useState(false);
+  const [topupTimeWindowStart, setTopupTimeWindowStart] = useState('');
+  const [topupTimeWindowEnd, setTopupTimeWindowEnd] = useState('');
+
+  // 判断当前是否在充值时间窗口内
+  const isInTopupTimeWindow = () => {
+    if (!topupTimeWindowEnabled) return true;
+    if (!topupTimeWindowStart || !topupTimeWindowEnd) return true;
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const [startH, startM] = topupTimeWindowStart.split(':').map(Number);
+    const [endH, endM] = topupTimeWindowEnd.split(':').map(Number);
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+
+    if (startMinutes <= endMinutes) {
+      return nowMinutes >= startMinutes && nowMinutes < endMinutes;
+    }
+    // 跨夜窗口 (e.g. 22:00-06:00)
+    return nowMinutes >= startMinutes || nowMinutes < endMinutes;
+  };
+
+  const topupWindowStr = topupTimeWindowEnabled
+    ? `${topupTimeWindowStart} - ${topupTimeWindowEnd}`
+    : '';
+
   const confirmPayMethods = [
     ...payMethods,
     ...waffoPayMethods.map((method, index) => ({
@@ -586,6 +614,11 @@ const TopUp = () => {
           discount: data.discount || {},
         });
 
+        // 充值时间窗口
+        setTopupTimeWindowEnabled(data.topup_time_window_enabled || false);
+        setTopupTimeWindowStart(data.topup_time_window_start || '');
+        setTopupTimeWindowEnd(data.topup_time_window_end || '');
+
         // 处理支付方式
         let payMethods = data.pay_methods || [];
         try {
@@ -1025,6 +1058,8 @@ const TopUp = () => {
           renderQuota={renderQuota}
           statusLoading={statusLoading}
           topupInfo={topupInfo}
+          isInTopupTimeWindow={isInTopupTimeWindow()}
+          topupTimeWindowStr={topupWindowStr}
           onOpenHistory={handleOpenHistory}
           subscriptionLoading={subscriptionLoading}
           subscriptionPlans={subscriptionPlans}

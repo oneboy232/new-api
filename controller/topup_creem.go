@@ -159,6 +159,9 @@ func RequestCreemPay(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "参数错误"})
 		return
 	}
+	if !checkTopupTimeWindow(c) {
+		return
+	}
 	creemAdaptor.RequestPay(c, &req)
 }
 
