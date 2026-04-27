@@ -17,6 +17,7 @@ import (
 	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting"
+	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/QuantumNous/new-api/setting/ratio_setting"
 
 	"github.com/QuantumNous/new-api/constant"
@@ -1131,6 +1132,10 @@ func TopUp(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		common.ApiError(c, err)
+		return
+	}
+	if !operation_setting.GetGeneralSetting().RedemptionEnabled {
+		c.JSON(http.StatusOK, gin.H{"message": "error", "data": "兑换码充值已禁用"})
 		return
 	}
 	quota, err := model.Redeem(req.Key, id)

@@ -32,6 +32,8 @@ type GeneralSetting struct {
 	TopupTimeWindowEnabled bool   `json:"topup_time_window_enabled"`
 	TopupTimeWindowStart   string `json:"topup_time_window_start"`
 	TopupTimeWindowEnd     string `json:"topup_time_window_end"`
+	// 兑换码充值
+	RedemptionEnabled bool `json:"redemption_enabled"`
 }
 
 // 默认配置
@@ -45,6 +47,7 @@ var generalSetting = GeneralSetting{
 	TopupTimeWindowEnabled:     false,
 	TopupTimeWindowStart:       "08:00",
 	TopupTimeWindowEnd:         "20:00",
+		RedemptionEnabled:          true,
 }
 
 func init() {

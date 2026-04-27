@@ -123,6 +123,9 @@ const TopUp = () => {
   const [topupTimeWindowStart, setTopupTimeWindowStart] = useState('');
   const [topupTimeWindowEnd, setTopupTimeWindowEnd] = useState('');
 
+  // 兑换码充值是否启用
+  const [redemptionEnabled, setRedemptionEnabled] = useState(true);
+
   // 判断当前是否在充值时间窗口内
   const isInTopupTimeWindow = () => {
     if (!topupTimeWindowEnabled) return true;
@@ -693,6 +696,7 @@ const TopUp = () => {
           setWaffoMinTopUp(data.waffo_min_topup || 1);
           setEnableWaffoPancakeTopUp(enableWaffoPancakeTopUp);
           setWaffoPancakeMinTopUp(data.waffo_pancake_min_topup || 1);
+          setRedemptionEnabled(data.redemption_enabled !== false);
           setMinTopUp(minTopUpValue);
           setTopUpCount(minTopUpValue);
 
@@ -1031,6 +1035,7 @@ const TopUp = () => {
           creemPreTopUp={creemPreTopUp}
           enableWaffoTopUp={enableWaffoTopUp}
           enableWaffoPancakeTopUp={enableWaffoPancakeTopUp}
+          redemptionEnabled={redemptionEnabled}
           presetAmounts={presetAmounts}
           selectedPreset={selectedPreset}
           selectPresetAmount={selectPresetAmount}

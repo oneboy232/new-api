@@ -113,6 +113,7 @@ func GetTopUpInfo(c *gin.Context) {
 		"topup_time_window_enabled": operation_setting.GetGeneralSetting().TopupTimeWindowEnabled,
 		"topup_time_window_start":   operation_setting.GetGeneralSetting().TopupTimeWindowStart,
 		"topup_time_window_end":     operation_setting.GetGeneralSetting().TopupTimeWindowEnd,
+		"redemption_enabled":        operation_setting.GetGeneralSetting().RedemptionEnabled,
 	}
 	common.ApiSuccess(c, data)
 }

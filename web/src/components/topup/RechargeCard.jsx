@@ -56,6 +56,7 @@ const RechargeCard = ({
   t,
   enableOnlineTopUp,
   enableStripeTopUp,
+  redemptionEnabled,
   enableCreemTopUp,
   creemProducts,
   creemPreTopUp,
@@ -618,6 +619,8 @@ const RechargeCard = ({
         )}
       </Card>
 
+      {redemptionEnabled !== false && (
+        <>
       {/* 兑换码充值 */}
       <Card
         className='!rounded-xl w-full'
@@ -670,6 +673,8 @@ const RechargeCard = ({
           />
         </Form>
       </Card>
+        </>
+      )}
     </Space>
   );
 

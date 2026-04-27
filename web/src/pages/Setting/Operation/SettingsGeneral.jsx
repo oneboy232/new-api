@@ -62,6 +62,7 @@ export default function GeneralSettings(props) {
     'general_setting.topup_time_window_enabled': false,
     'general_setting.topup_time_window_start': '08:00',
     'general_setting.topup_time_window_end': '20:00',
+    'general_setting.redemption_enabled': true,
   });
   const refForm = useRef();
   const [inputsRow, setInputsRow] = useState(inputs);
@@ -443,6 +444,17 @@ export default function GeneralSettings(props) {
                   </Col>
                 </>
               )}
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Form.Switch
+                  field={'general_setting.redemption_enabled'}
+                  label={t('兑换码充值')}
+                  extraText={t('开启后用户可在钱包页面使用兑换码充值')}
+                  size='default'
+                  checkedText='｜'
+                  uncheckedText='〇'
+                  onChange={handleFieldChange('general_setting.redemption_enabled')}
+                />
+              </Col>
             </Row>
             <Row gutter={16}>
               <Col xs={24} sm={12} md={8} lg={8} xl={8}>

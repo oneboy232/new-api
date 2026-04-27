@@ -87,6 +87,7 @@ const OperationSetting = () => {
     'general_setting.topup_time_window_enabled': false,
     'general_setting.topup_time_window_start': '08:00',
     'general_setting.topup_time_window_end': '20:00',
+    'general_setting.redemption_enabled': true,
   });
 
   let [loading, setLoading] = useState(false);
