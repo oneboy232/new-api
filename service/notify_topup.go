@@ -45,6 +45,17 @@ func NotifyTopupByTradeNo(tradeNo string) {
 		topUp.Amount,
 		providerName)
 
+	// 发送飞书群通知
+	feishuTitle := "充值成功通知"
+	feishuContent := fmt.Sprintf("用户：%s\n金额：$%.2f\n到账额度：%d\n支付方式：%s\n订单号：%s",
+		user.Username,
+		topUp.Money,
+		topUp.Amount,
+		providerName,
+		topUp.TradeNo)
+	SendFeishuNotify(feishuTitle, feishuContent)
+
+	// 发送用户通知（需用户个人配置通知方式）
 	notification := dto.NewNotify(dto.NotifyTypeTopup, title, content, nil)
 	if err := NotifyUser(topUp.UserId, user.Email, userSetting, notification); err != nil {
 		common.SysLog(fmt.Sprintf("failed to send topup notification to user %d: %s", topUp.UserId, err.Error()))
