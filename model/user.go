@@ -963,6 +963,25 @@ func IncreaseUserQuota(id int, quota int, db bool) (err error) {
 	return err
 }
 
+// RefundUserQuota 退还用户额度，与 IncreaseUserQuota 行为一致但不触发 OnQuotaIncreased 回调，
+// 用于 API 消费后退还预扣额度等场景，避免误发"配额增加通知"。
+func RefundUserQuota(id int, quota int, db bool) (err error) {
+	if quota < 0 {
+		return errors.New("quota 不能为负数！")
+	}
+	gopool.Go(func() {
+		err := cacheIncrUserQuota(id, int64(quota))
+		if err != nil {
+			common.SysLog("failed to refund user quota: " + err.Error())
+		}
+	})
+	if !db && common.BatchUpdateEnabled {
+		addNewRecord(BatchUpdateTypeUserQuota, id, quota)
+		return nil
+	}
+	return increaseUserQuota(id, quota)
+}
+
 func IncreaseUserAffQuota(id int, quota int) (err error) {
 	if quota < 0 {
 		return errors.New("quota 不能为负数！")
