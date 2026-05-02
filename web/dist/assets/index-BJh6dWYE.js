@@ -1,1 +1,0 @@
-import{j as t}from"./semi-ui-7rLTacct.js";import"./react-core-D-iPSUlg.js";const o=()=>t.jsx("iframe",{src:"/docs/partner-incentive-plan.html",className:"w-full h-screen border-none",title:"about"});export{o as default};

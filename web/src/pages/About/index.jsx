@@ -22,7 +22,7 @@ import React from 'react';
 const About = () => {
   return (
     <iframe
-      src='/docs/partner-incentive-plan.html'
+      src='/statics/partner-incentive-plan.html'
       className='w-full h-screen border-none'
       title='about'
     />

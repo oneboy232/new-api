@@ -35,6 +35,7 @@ import (
 )
 
 //go:embed web/dist
+//go:embed web/statics
 var buildFS embed.FS
 
 //go:embed web/dist/index.html

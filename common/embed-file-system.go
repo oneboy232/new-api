@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-contrib/static"
 )
@@ -15,8 +16,13 @@ type embedFileSystem struct {
 	http.FileSystem
 }
 
-func (e *embedFileSystem) Exists(prefix string, path string) bool {
-	_, err := e.Open(path)
+func (e *embedFileSystem) Exists(prefix string, filepath string) bool {
+	p := strings.TrimPrefix(filepath, prefix)
+	// 确保 stripped 路径是相对于 embed 子文件系统的
+	if p == filepath {
+		return false
+	}
+	_, err := e.Open(p)
 	if err != nil {
 		return false
 	}

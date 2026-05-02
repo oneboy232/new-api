@@ -22,7 +22,7 @@ import React from 'react';
 const Home = () => {
   return (
     <iframe
-      src='/docs/index.html'
+      src='/statics/home.html'
       className='w-full h-screen border-none'
       title='home'
     />

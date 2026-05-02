@@ -1,1 +1,0 @@
-import{j as s}from"./semi-ui-7rLTacct.js";import"./react-core-D-iPSUlg.js";const o=()=>s.jsx("iframe",{src:"/docs/api_index.html",className:"w-full h-screen border-none",title:"docs"});export{o as default};
