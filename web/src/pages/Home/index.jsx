@@ -81,6 +81,18 @@ const Home = () => {
   const [endpointIndex, setEndpointIndex] = useState(0);
   const isChinese = i18n.language.startsWith('zh');
 
+  const getIframeSrc = (url) => {
+    try {
+      const u = new URL(url);
+      const origin = /^localhost|127\.0\.0\.1|::1$/.test(window.location.hostname)
+        ? window.location.origin : serverAddress;
+      u.searchParams.set('origin', origin);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  };
+
   const displayHomePageContent = async () => {
     setHomePageContent(localStorage.getItem('home_page_content') || '');
     const res = await API.get('/api/home_page_content');
@@ -338,7 +350,7 @@ const Home = () => {
         <div className='overflow-x-hidden w-full'>
           {homePageContent.startsWith('https://') ? (
             <iframe
-              src={homePageContent}
+              src={getIframeSrc(homePageContent)}
               className='w-full h-screen border-none'
             />
           ) : (
