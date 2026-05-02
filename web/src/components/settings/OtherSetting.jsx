@@ -461,9 +461,9 @@ const OtherSetting = () => {
                 {t('设置首页内容')}
               </Button>
               <Form.TextArea
-                label={t('关于')}
+                label={t('成为代理')}
                 placeholder={t(
-                  '在此输入新的关于内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为关于页面',
+                  '在此输入新的代理页内容，支持 Markdown & HTML 代码。如果输入的是一个链接，则会使用该链接作为 iframe 的 src 属性，这允许你设置任意网页作为代理页面',
                 )}
                 field={'About'}
                 onChange={handleInputChange}
@@ -471,7 +471,7 @@ const OtherSetting = () => {
                 autosize={{ minRows: 6, maxRows: 12 }}
               />
               <Button onClick={submitAbout} loading={loadingInput['About']}>
-                {t('设置关于')}
+                {t('设置代理页')}
               </Button>
               {/*  */}
               <Banner

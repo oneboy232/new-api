@@ -185,8 +185,8 @@ export default function SettingsHeaderNavModules(props) {
     },
     {
       key: 'about',
-      title: t('关于'),
-      description: t('关于系统的详细信息'),
+      title: t('成为代理'),
+      description: t('成为代理介绍'),
     },
   ];
 
