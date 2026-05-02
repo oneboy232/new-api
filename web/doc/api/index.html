@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 参考 | Eazy Router</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f6ef7;
+      --primary-light: #eef0ff;
+      --primary-dark: #3b55d9;
+      --bg: #f8f9fc;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a2e;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --text-muted-foreground: #6b7280;
+      --border: #e8e8f0;
+      --border-light: #f0f0f5;
+      --code-bg: #1a1a2e;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 24px rgba(0,0,0,0.06);
+      --sidebar-width: 300px;
+      --accent-hover: #f4f5ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', sans-serif;
+      color: var(--text-primary);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+    .layout { display: flex; min-height: 100vh; }
+    a { text-decoration: none; }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 20;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .sidebar-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sidebar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+    .sidebar-logo svg { width: 22px; height: 22px; }
+    .sidebar-logo span {
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-search {
+      margin: 12px 16px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: text;
+    }
+    .sidebar-search svg { width: 14px; height: 14px; stroke: var(--text-muted); }
+
+    .sidebar-section-title {
+      padding: 12px 20px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Folder / Category header */
+    .tree-folder {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding: 8px 20px 4px;
+      cursor: default;
+    }
+    .tree-folder-icon {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 4px;
+    }
+    .tree-folder-icon svg { width: 14px; height: 14px; stroke: var(--text-muted); }
+
+    /* Nav item */
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 20px 5px 28px;
+      font-size: 14px;
+      color: var(--text-muted-foreground);
+      text-decoration: none;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border-radius: 0;
+      position: relative;
+    }
+    .tree-item:hover {
+      background: var(--accent-hover);
+      color: var(--text-primary);
+    }
+    .tree-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .tree-item .method-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: auto;
+      flex-shrink: 0;
+      line-height: 1.5;
+    }
+    .method-tag.post { background: #d1fae5; color: #059669; }
+    .method-tag.get { background: #dbeafe; color: #2563eb; }
+    .method-tag.put { background: #fef3c7; color: #d97706; }
+    .method-tag.delete { background: #fee2e2; color: #dc2626; }
+
+    .tree-nested { padding-left: 16px; }
+
+    /* Sub-folder item (indented) */
+    .tree-sub-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 20px 4px 36px;
+      font-size: 13px;
+      color: var(--text-muted-foreground);
+      text-decoration: none;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .tree-sub-item:hover {
+      color: var(--text-primary);
+      background: var(--accent-hover);
+    }
+    .tree-sub-item .method-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: auto;
+      flex-shrink: 0;
+      line-height: 1.5;
+    }
+
+    /* ===== Main ===== */
+    .main { flex: 1; max-width: calc(100% - var(--sidebar-width)); }
+    .content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 48px 80px;
+    }
+
+    /* Page Header */
+    .page-header { margin-bottom: 40px; }
+    .page-header h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .page-header p { font-size: 16px; color: var(--text-secondary); }
+    .badge-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: #d1fae5; color: #059669; }
+    .badge-gray { background: #f3f4f6; color: #666; }
+
+    /* Section */
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title svg { width: 20px; height: 20px; stroke: var(--text-primary); flex-shrink: 0; }
+    .section-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; }
+
+    /* API Card */
+    .api-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: box-shadow 0.2s ease;
+    }
+    .api-card:hover { box-shadow: var(--shadow-lg); }
+
+    .api-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      user-select: none;
+    }
+    .api-card-header:hover { background: #fafbff; }
+
+    .api-method {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .api-method.post { background: #d1fae5; color: #059669; }
+    .api-method.get { background: #dbeafe; color: #2563eb; }
+    .api-method.put { background: #fef3c7; color: #d97706; }
+    .api-method.delete { background: #fee2e2; color: #dc2626; }
+
+    .api-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .api-title { font-size: 14px; font-weight: 500; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+    .api-card-body { padding: 20px; }
+    .api-card-body.hidden { display: none; }
+    .api-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+
+    .collapse-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+    .collapse-icon.collapsed { transform: rotate(-90deg); }
+
+    /* Code Block */
+    .code-block {
+      background: var(--code-bg);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 12px 0 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e4e4e7;
+    }
+    .code-block .comment { color: #71717a; }
+    .code-block .string { color: #34d399; }
+
+    /* Parameter Table */
+    .param-table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 13px; }
+    .param-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-bottom: 2px solid var(--border);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 12px;
+    }
+    .param-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-secondary); vertical-align: top; }
+    .param-table tr:hover td { background: #fafbff; }
+    .param-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; }
+    .param-type { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--primary); }
+    .param-required { display: inline-block; background: #fee2e2; color: #dc2626; font-size: 10px; font-weight: 600; padding: 0 5px; border-radius: 3px; margin-left: 6px; }
+    .param-optional { display: inline-block; background: #f3f4f6; color: #888; font-size: 10px; font-weight: 500; padding: 0 5px; border-radius: 3px; margin-left: 6px; }
+
+    .info-block {
+      background: #f8f9ff;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 12px 16px;
+      margin: 12px 0 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .info-block code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #eef0ff; padding: 1px 5px; border-radius: 3px; }
+    .info-block strong { color: var(--text-primary); }
+
+    h4 { font-size: 14px; margin-bottom: 8px; color: var(--text-primary); }
+    .field-desc { font-size: 13px; color: var(--text-muted); display: block; margin-top: 2px; }
+
+
+    /* Sidebar filter */
+    .sidebar-nav-item-hidden { display: none !important; }
+    .sidebar-section-hidden { display: none !important; }
+    .no-search-results {
+      padding: 24px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: none;
+    }
+
+    /* Tree collapse */
+    .tree-folder {
+      cursor: pointer;
+      user-select: none;
+    }
+    .tree-folder .folder-chevron {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 2px;
+      transition: transform 0.2s ease;
+    }
+    .tree-folder .folder-chevron svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--text-muted);
+    }
+    .tree-folder.collapsed .folder-chevron {
+      transform: rotate(-90deg);
+    }
+    .tree-collapsible { transition: opacity 0.15s ease; }
+    .tree-collapsible.collapsed { display: none !important; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      :root { --sidebar-width: 260px; }
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        width: 85%;
+        max-width: 320px;
+        transition: left 0.3s ease;
+        z-index: 100;
+      }
+      .sidebar.open { left: 0; }
+      .main { max-width: 100%; }
+      .content { padding: 24px 16px; }
+      .page-header h1 { font-size: 28px; }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 99;
+      }
+      .sidebar-overlay.show { display: block; }
+
+      .menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-card);
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+      .menu-toggle svg { width: 18px; height: 18px; }
+    }
+    @media (min-width: 769px) {
+      .menu-toggle { display: none; }
+      .sidebar-overlay { display: none !important; }
+    }
+
+    /* Code Language Tabs */
+    .code-tabs { margin: 12px 0 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); position: relative; }
+    .tab-buttons { display: flex; background: #f4f4f5; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab-btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border: none; background: none; cursor: pointer; color: #71717a; border-bottom: 2px solid transparent; white-space: nowrap; font-family: inherit; }
+    .tab-btn:hover { color: var(--text-primary); background: #eaeaeb; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff; }
+    .tab-content { display: none; position: relative; }
+    .tab-content.active { display: block; }
+    .tab-content .code-block {
+      margin: 0; border: none; border-radius: 0; background: var(--code-bg);
+      padding: 16px 20px; overflow-x: auto; font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 13px; line-height: 1.6; color: #e4e4e7; white-space: pre;
+    }
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px; z-index: 2;
+      padding: 4px 10px; font-size: 11px; font-family: inherit;
+      background: rgba(255,255,255,0.1); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px; cursor: pointer; opacity: 0; transition: opacity .2s;
+    }
+    .tab-content:hover .copy-btn { opacity: 1; }
+    .copy-btn:hover { background: rgba(255,255,255,0.2); color: #e4e4e7; }
+    .copy-btn.copied { background: #22c55e; color: #fff; border-color: #22c55e; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ====== Sidebar ====== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>API 参考</span>
+        </div>
+      </div>
+
+      <div class="sidebar-nav">
+        <a class="tree-item active" href="#overview">概览</a>
+
+        <!-- 模型 -->
+        <div class="tree-folder">
+          <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+          模型（Models）
+        </div>
+        <div class="tree-nested">
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            列出模型
+          </div>
+          <a class="tree-sub-item" href="#models-openai">
+            原生 OpenAI 格式 <span class="method-tag get">GET</span>
+          </a>
+          <a class="tree-sub-item" href="#models-gemini">
+            原生 Gemini 格式 <span class="method-tag get">GET</span>
+          </a>
+        </div>
+
+        <!-- 聊天 -->
+        <div class="tree-folder">
+          <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+          聊天
+        </div>
+        <div class="tree-nested">
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            原生Claude格式
+          </div>
+          <a class="tree-sub-item" href="#chat-claude">原生Claude格式 <span class="method-tag post">POST</span></a>
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            原生Gemini格式
+          </div>
+          <a class="tree-sub-item" href="#chat-gemini-media">Gemini 媒体识别 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-gemini-text">Gemini 文本聊天 <span class="method-tag post">POST</span></a>
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            原始OpenAi格式
+          </div>
+          <a class="tree-sub-item" href="#chat-openai">ChatCompletions 格式 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-responses">Responses 格式 <span class="method-tag post">POST</span></a>
+        </div>
+
+        <!-- 图像 -->
+        <div class="tree-folder">
+          <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg></span>
+          图像
+        </div>
+        <div class="tree-nested">
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            原生Gemini格式
+          </div>
+          <a class="tree-sub-item" href="#images-gemini-gen">Gemini 原生格式 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-gemini-chat">OpenAI 聊天格式 <span class="method-tag post">POST</span></a>
+          <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
+            <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            原始OpenAi格式
+          </div>
+          <a class="tree-sub-item" href="#images-edit">图像编辑 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-generate">生成图像 <span class="method-tag post">POST</span></a>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ====== Main ====== -->
+    <div class="main">
+      <!-- Mobile menu toggle -->
+      <div style="padding:16px 16px 0;">
+        <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="content">
+        <!-- Page Header -->
+        <div class="page-header" id="overview">
+          <h1>API 参考</h1>
+          <p>Eazy Router 提供完整的 RESTful API 接口，分为 <strong>AI 模型接口</strong> 和 <strong>管理接口</strong> 两大类。</p>
+          <div class="badge-row">
+            <span class="badge badge-blue">RESTful API</span>
+            <span class="badge badge-green">兼容 OpenAI</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <p class="section-desc">
+            AI 模型接口提供各种 AI 能力的调用，兼容 OpenAI API 格式。所有接口均使用 Bearer Token 鉴权。
+          </p>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 1. 模型列表 - OpenAI 格式 -->
+        <!-- ============================================= -->
+        <div class="section" id="models-openai">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            列出模型 — 原生 OpenAI 格式
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/v1/models</span>
+              <span class="api-title">获取可用模型列表</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">获取当前可用的模型列表。根据请求头自动识别返回格式（Claude/Gemini/OpenAI）。</p>
+
+              <div class="info-block"><strong>注意：</strong> 携带 <code>x-api-key</code> 返回原生 Claude 格式，携带 <code>x-goog-api-key</code> 返回原生 Gemini 格式，其他情况返回 OpenAI 格式。</div>
+
+              <h4>Header Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td>Anthropic API 版本（用于 Claude 格式）</td></tr>
+                  <tr><td><code class="param-name">x-api-key</code></td><td><span class="param-type">string</span></td><td>Anthropic API Key（用于 Claude 格式）</td></tr>
+                  <tr><td><code class="param-name">x-goog-api-key</code></td><td><span class="param-type">string</span></td><td>Google API Key（用于 Gemini 格式）</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="GET" data-url="https://eazyrouter.io/v1/models" data-headers='{"Authorization":"Bearer sk-xxxxxx"}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 2. 模型列表 - Gemini 格式 -->
+        <!-- ============================================= -->
+        <div class="section" id="models-gemini">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            列出模型 — 原生 Gemini 格式
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method get">GET</span>
+              <span class="api-path">/v1beta/models</span>
+              <span class="api-title">以 Gemini API 格式返回可用模型列表</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">以 Google Gemini API 格式返回可用模型列表。</p>
+
+              <h4>Header Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                  <tr><td><code class="param-name">x-goog-api-key</code></td><td><span class="param-type">string</span></td><td>Google API Key</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="GET" data-url="https://eazyrouter.io/v1beta/models" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 3. 聊天 - Claude 格式 -->
+        <!-- ============================================= -->
+        <div class="section" id="chat-claude">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            聊天 — 原生 Claude 格式：创建消息
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/messages</span>
+              <span class="api-title">兼容 Anthropic Claude Messages API</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">兼容 Anthropic Claude Messages API。通过 Anthropic API Key 或 Bearer Token 鉴权。</p>
+
+              <h4>Header Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt; 或 Bearer sk-xxxxxx</td></tr>
+                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td>Anthropic API 版本</td></tr>
+                  <tr><td><code class="param-name">x-api-key</code><span class="param-optional">可选</span></td><td><span class="param-type">string</span></td><td>Anthropic API Key（可选，也可使用 Bearer Token）</td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
+                  <tr><td><code class="param-name">max_tokens</code><span class="param-required">必填</span></td><td><span class="param-type">integer</span></td><td>最大生成 Token 数。限制：1 &lt;= value</td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
+                  <tr><td><code class="param-name">system</code></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td>系统提示词</td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 1</td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数</td></tr>
+                  <tr><td><code class="param-name">top_k</code></td><td><span class="param-type">integer</span></td><td>Top-K 采样参数</td></tr>
+                  <tr><td><code class="param-name">stop_sequences</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td>停止序列</td></tr>
+                  <tr><td><code class="param-name">metadata</code></td><td><span class="param-type">object</span></td><td>元数据</td></tr>
+                  <tr><td><code class="param-name">thinking</code></td><td><span class="param-type">object</span></td><td>扩展思考配置</td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">object | string</span></td><td>工具选择模式</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/messages" data-headers='{"Authorization":"Bearer sk-xxxxxx","anthropic-version":"2023-06-01"}' data-body='{"model":"claude-sonnet-4-20250514","max_tokens":1024,"messages":[{"role":"user","content":"Hello"}]}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 4. 聊天 - Gemini 媒体识别 -->
+        <!-- ============================================= -->
+        <div class="section" id="chat-gemini-media">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            聊天 — Gemini 媒体识别
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1beta/models/{model}:generateContent</span>
+              <span class="api-title">Gemini 图像、PDF、音频、视频识别</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">Gemini 图像、PDF、音频、视频识别请求。支持 inlineData 和 fileData 两种方式传递媒体文件。</p>
+
+              <h4>Path Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表。支持 <code>inlineData</code> 和 <code>fileData.fileUri</code></td></tr>
+                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td>系统指令</td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
+                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>安全设置</td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-2.5-flash:generateContent" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"识别这张图片"},{"inlineData":{"mimeType":"image/png","data":"base64..."}}],"role":"user"}]}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 5. 聊天 - Gemini 文本聊天 -->
+        <!-- ============================================= -->
+        <div class="section" id="chat-gemini-text">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            聊天 — Gemini 文本聊天
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1beta/models/{model}:{action}</span>
+              <span class="api-title">Gemini 文本聊天</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">兼容 Google Gemini API 格式。支持非流式和流式两种模式。</p>
+
+              <h4>Path Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></td></tr>
+                  <tr><td><code class="param-name">action</code></td><td><code>generateContent</code>（非流式）或 <code>streamGenerateContent?alt=sse</code>（流式）</td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表</td></tr>
+                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td>系统指令</td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
+                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>安全设置</td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-2.5-flash:generateContent" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"Hello"}],"role":"user"}]}'></div>
+
+              <div class="info-block"><strong>流式：</strong> 使用 <code>streamGenerateContent?alt=sse</code> 作为 action 参数启用 SSE 流式响应。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 6. 聊天 - OpenAI ChatCompletions -->
+        <!-- ============================================= -->
+        <div class="section" id="chat-openai">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            聊天 — ChatCompletions 格式
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/chat/completions</span>
+              <span class="api-title">兼容 OpenAI Chat Completions API</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">兼容 OpenAI Chat Completions API。根据对话历史创建模型响应，支持流式和非流式响应。</p>
+
+              <h4>Header Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应。默认 false</td></tr>
+                  <tr><td><code class="param-name">stream_options</code></td><td><span class="param-type">object</span></td><td>流式选项</td></tr>
+                  <tr><td><code class="param-name">max_tokens</code></td><td><span class="param-type">integer</span></td><td>最大生成 Token 数。限制：1 &lt;= value</td></tr>
+                  <tr><td><code class="param-name">max_completion_tokens</code></td><td><span class="param-type">integer</span></td><td>最大补全 Token 数</td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 2</td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数。限制：0 &lt;= value &lt;= 1</td></tr>
+                  <tr><td><code class="param-name">frequency_penalty</code></td><td><span class="param-type">number</span></td><td>频率惩罚。限制：-2 &lt;= value &lt;= 2</td></tr>
+                  <tr><td><code class="param-name">presence_penalty</code></td><td><span class="param-type">number</span></td><td>存在惩罚。限制：-2 &lt;= value &lt;= 2</td></tr>
+                  <tr><td><code class="param-name">reasoning_effort</code></td><td><span class="param-type">string</span></td><td>推理强度（用于支持推理的模型）</td></tr>
+                  <tr><td><code class="param-name">stop</code></td><td><span class="param-type">string | array&lt;string&gt;</span></td><td>停止序列</td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string | object</span></td><td>工具选择模式。可选值："none" | "auto" | "required"</td></tr>
+                  <tr><td><code class="param-name">response_format</code></td><td><span class="param-type">object</span></td><td>响应格式（如 JSON mode）</td></tr>
+                  <tr><td><code class="param-name">logit_bias</code></td><td><span class="param-type">object</span></td><td>Logit 偏差</td></tr>
+                  <tr><td><code class="param-name">modalities</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td>模态类型（如 ["text", "audio"]）</td></tr>
+                  <tr><td><code class="param-name">audio</code></td><td><span class="param-type">object</span></td><td>音频配置</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/chat/completions" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-body='{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}],"temperature":0.7}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 7. 聊天 - Responses 格式 -->
+        <!-- ============================================= -->
+        <div class="section" id="chat-responses">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            聊天 — Responses 格式
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/responses</span>
+              <span class="api-title">OpenAI Responses API</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">OpenAI Responses API 格式。支持工具调用、推理、流式响应等特性。</p>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
+                  <tr><td><code class="param-name">input</code><span class="param-required">必填</span></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td>输入内容</td></tr>
+                  <tr><td><code class="param-name">instructions</code></td><td><span class="param-type">string</span></td><td>系统指令</td></tr>
+                  <tr><td><code class="param-name">max_output_tokens</code></td><td><span class="param-type">integer</span></td><td>最大输出 Token 数</td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 2</td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数。限制：0 &lt;= value &lt;= 1</td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string</span></td><td>工具选择模式。可选值："none" | "auto" | "required"</td></tr>
+                  <tr><td><code class="param-name">reasoning</code></td><td><span class="param-type">object</span></td><td>推理配置</td></tr>
+                  <tr><td><code class="param-name">previous_response_id</code></td><td><span class="param-type">string</span></td><td>上一条响应 ID（用于多轮对话）</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/responses" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-body='{"model":"gpt-4o","input":"Hello"}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 8. 图像 - Gemini 原生格式 -->
+        <!-- ============================================= -->
+        <div class="section" id="images-gemini-gen">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
+            图像 — Gemini 原生格式：图片生成
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1beta/models/{model}:generateContent/</span>
+              <span class="api-title">Gemini 图片生成</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">通过 Gemini 原生格式创建图像。</p>
+
+              <h4>Path Parameters</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-3.1-flash-image-preview</code></td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表</td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-3.1-flash-image-preview:generateContent/" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"画一只猫"}],"role":"user"}]}'></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 9. 图像 - Gemini (OpenAI 聊天格式) -->
+        <!-- ============================================= -->
+        <div class="section" id="images-gemini-chat">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
+            图像 — OpenAI 聊天格式（Gemini）
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/chat/completions</span>
+              <span class="api-title">通过 OpenAI 格式调 Gemini 图片生成</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">通过 OpenAI 聊天补全格式调用 Gemini 图片生成能力。在 <code>extra_body</code> 中透传 Gemini 参数。</p>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
+                  <tr><td><code class="param-name">extra_body</code></td><td><span class="param-type">object</span></td><td>透传 Gemini 原生参数</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 10. 图像编辑 -->
+        <!-- ============================================= -->
+        <div class="section" id="images-edit">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
+            图像 — 图像编辑
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/images/edits</span>
+              <span class="api-title">创建图像编辑或扩展</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">在给定原始图像和提示的情况下创建编辑或扩展图像。使用 <code>multipart/form-data</code> 格式。</p>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>图像编辑模型的 ID。可选值：<code>dall-e-2</code>、<code>gpt-image-2</code></td></tr>
+                  <tr><td><code class="param-name">prompt</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>图像的文本描述</td></tr>
+                  <tr><td><code class="param-name">image</code><span class="param-required">必填</span></td><td><span class="param-type">binary</span></td><td>原始图像文件</td></tr>
+                  <tr><td><code class="param-name">user</code></td><td><span class="param-type">string</span></td><td>代表您的最终用户的唯一标识符</td></tr>
+                </tbody>
+              </table>
+
+              <div class="info-block">
+                <strong>注意：</strong> 请求格式为 <code>multipart/form-data</code>，而非 <code>application/json</code>。
+              </div>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/images/edits" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-multipart="true"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 11. 图像生成 -->
+        <!-- ============================================= -->
+        <div class="section" id="images-generate">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
+            图像 — 生成图像
+          </div>
+
+          <div class="api-card">
+            <div class="api-card-header">
+              <span class="api-method post">POST</span>
+              <span class="api-path">/v1/images/generations</span>
+              <span class="api-title">在给定提示的情况下创建图像</span>
+            </div>
+            <div class="api-card-body">
+              <p class="api-desc">在给定提示的情况下创建图像。兼容 OpenAI Images API。支持 dall-e-2、dall-e-3、gpt-image-1 模型。</p>
+
+              <h4>Request Body</h4>
+              <table class="param-table">
+                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID。可选：<code>dall-e-2</code>、<code>dall-e-3</code>、<code>gpt-image-1</code></td></tr>
+                  <tr><td style="white-space: nowrap;"><code class="param-name">prompt</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>所需图像的文本描述</td></tr>
+                  <tr><td><code class="param-name">n</code></td><td><span class="param-type">integer</span></td><td>生成数量。1-10。默认 1</td></tr>
+                  <tr><td><code class="param-name">quality</code></td><td><span class="param-type">string</span></td><td>质量。可选：<code>standard</code>、<code>hd</code></td></tr>
+                  <tr><td><code class="param-name">size</code></td><td><span class="param-type">string</span></td><td>尺寸。可选：<code>256x256</code>、<code>512x512</code>、<code>1024x1024</code>、<code>1024x1536</code>、<code>1536x1024</code>、<code>1024x1792</code>、<code>1792x1024</code></td></tr>
+                  <tr><td><code class="param-name">style</code></td><td><span class="param-type">string</span></td><td>风格。可选：<code>vivid</code>、<code>natural</code></td></tr>
+                  <tr><td><code class="param-name">background</code></td><td><span class="param-type">string</span></td><td>背景透明度。仅支持 <code>gpt-image-1</code></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
+                  <tr><td><code class="param-name">moderation</code></td><td><span class="param-type">string</span></td><td>审核模式</td></tr>
+                </tbody>
+              </table>
+
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/images/generations" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-body='{"model":"dall-e-3","prompt":"A cute cat","n":1,"size":"1024x1024"}'></div>
+
+              <div class="info-block"><strong>提示：</strong> 对于 <code>gpt-image-1</code> 模型，如果设置了 <code>background</code> 参数，则输出格式需要支持透明度，模型将自动确定图像的最佳背景。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tree collapse: init folders with chevron + click toggle
+    function initTreeCollapse() {
+      var nav = document.querySelector('.sidebar-nav');
+      // Only process tree-folders inside the API reference section (before external nav)
+      var folders = nav.querySelectorAll(':scope > .tree-folder, .tree-nested > .tree-folder');
+      var chevronSvg = '<span class="folder-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>';
+
+      folders.forEach(function(folder) {
+        // Add chevron if not already present
+        if (!folder.querySelector('.folder-chevron')) {
+          folder.insertAdjacentHTML('afterbegin', chevronSvg);
+        }
+
+        // Find what follows: the "collapsible" siblings (tree-item and tree-nested)
+        // that belong to this folder (until next tree-folder at same level)
+        function getNextSiblings(el) {
+          var sibs = [];
+          var sib = el.nextElementSibling;
+          while (sib) {
+            if (sib.classList.contains('tree-folder') || sib.classList.contains('sidebar-section-title')) break;
+            sibs.push(sib);
+            sib = sib.nextElementSibling;
+          }
+          return sibs;
+        }
+
+        var targets = getNextSiblings(folder);
+        targets.forEach(function(t) { t.classList.add('tree-collapsible'); });
+
+        folder.addEventListener('click', function(e) {
+          e.stopPropagation();
+          this.classList.toggle('collapsed');
+          targets.forEach(function(t) { t.classList.toggle('collapsed'); });
+        });
+      });
+    }
+
+    // Card collapse toggle
+    function initCardCollapse() {
+      document.querySelectorAll('.api-card-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+          var body = this.nextElementSibling;
+          if (body) {
+            body.classList.toggle('hidden');
+          }
+        });
+      });
+    }
+
+    // Code language tabs generator
+    function prettyBody(s) {
+      try { return JSON.stringify(JSON.parse(s), null, 2); } catch(e) { return s; }
+    }
+
+    function genCurl(method, url, headers, body, multipart) {
+      var h = ''; for (var k in headers) h += ' \\\n  -H "' + k + ': ' + headers[k] + '"';
+      if (multipart) return '<span class="comment"># curl 示例</span>\ncurl -X ' + method + ' "' + url + '"' + h + ' \\\n  -F "field=value" \\\n  -F "image=@file.png"';
+      if (body) return '<span class="comment"># curl 示例</span>\ncurl -X ' + method + ' "' + url + '"' + h + ' \\\n  -d \'' + prettyBody(body) + '\'';
+      return '<span class="comment"># curl 示例</span>\ncurl -X ' + method + ' "' + url + '"' + h;
+    }
+    function genJs(method, url, headers, body, multipart) {
+      if (multipart) return '<span class="comment">// JavaScript (fetch)</span>\nconst form = new FormData();\nform.append("field", "value");\nform.append("image", file);\nconst res = await fetch("' + url + '", { method: "' + method + '", body: form });\nconst data = await res.json();';
+      if (body) {
+        var hs = ''; for (var k in headers) hs += "'" + k + "': '" + headers[k] + "', ";
+        return '<span class="comment">// JavaScript (fetch)</span>\nconst body = ' + prettyBody(body) + ';\nconst res = await fetch("' + url + '", {\n  method: "' + method + '",\n  headers: { ' + hs + '},\n  body: JSON.stringify(body)\n});\nconst data = await res.json();';
+      }
+      return '<span class="comment">// JavaScript (fetch)</span>\nconst res = await fetch("' + url + '"' + (method==='GET'?'':', { method: "'+method+'" }') + ');\nconst data = await res.json();';
+    }
+    function genGo(method, url, headers, body, multipart) {
+      var hs = ''; for (var k in headers) hs += 'req.Header.Set("' + k + '", "' + headers[k] + '")\n';
+      if (multipart) return '<span class="comment">// Go</span>\nvar b bytes.Buffer\nw := multipart.NewWriter(&b)\nw.WriteField("field", "value")\nw.Close()\nreq, _ := http.NewRequest("' + method + '", "' + url + '", &b)\n' + hs + 'req.Header.Set("Content-Type", w.FormDataContentType())\nresp, _ := http.DefaultClient.Do(req)';
+      if (body) return '<span class="comment">// Go</span>\nbody := `' + prettyBody(body) + '`\nreq, _ := http.NewRequest("' + method + '", "' + url + '", strings.NewReader(body))\n' + hs + 'resp, _ := http.DefaultClient.Do(req)';
+      return '<span class="comment">// Go</span>\nreq, _ := http.NewRequest("' + method + '", "' + url + '", nil)\n' + hs + 'resp, _ := http.DefaultClient.Do(req)';
+    }
+    function genPy(method, url, headers, body, multipart) {
+      var hs = JSON.stringify(headers);
+      if (multipart) return '<span class="comment"># Python</span>\nimport requests\nheaders = ' + hs + '\nresp = requests.' + method.toLowerCase() + '("' + url + '", files={"field": "value", "image": open("file.png","rb")}, headers=headers)\ndata = resp.json()';
+      if (body) return '<span class="comment"># Python</span>\nimport requests\n\nurl = "' + url + '"\njson_data = ' + prettyBody(body) + '\nheaders = ' + hs + '\n\nresp = requests.' + method.toLowerCase() + '(url, json=json_data, headers=headers)\ndata = resp.json()';
+      return '<span class="comment"># Python</span>\nimport requests\nurl = "' + url + '"\nheaders = ' + hs + '\nresp = requests.' + method.toLowerCase() + '(url, headers=headers)\ndata = resp.json()';
+    }
+    function genJava(method, url, headers, body, multipart) {
+      if (multipart) return '<span class="comment">// Java (multipart)</span>\nvar url = new URL("' + url + '");\nvar conn = (HttpURLConnection) url.openConnection();\nconn.setRequestMethod("' + method + '");\n// 完整 multipart 代码略';
+      var hs = ''; for (var k in headers) hs += 'conn.setRequestProperty("' + k + '", "' + headers[k] + '");\n';
+      if (body) {
+        var lines = prettyBody(body).split('\n');
+        var sb = '';
+        for (var i = 0; i < lines.length; i++) {
+          var ln = lines[i].replace(/"/g, '\\"');
+          sb += (i === 0 ? '' : '\n    + ') + '"' + ln + '\\n"';
+        }
+        return '<span class="comment">// Java</span>\nvar url = new URL("' + url + '");\nvar conn = (HttpURLConnection) url.openConnection();\nconn.setRequestMethod("' + method + '");\nconn.setDoOutput(true);\n' + hs + 'String body = ' + sb + ';\ntry (var os = conn.getOutputStream()) {\n    os.write(body.getBytes());\n}\nvar code = conn.getResponseCode();';
+      }
+      return '<span class="comment">// Java</span>\nvar url = new URL("' + url + '");\nvar conn = (HttpURLConnection) url.openConnection();\n' + hs + 'var code = conn.getResponseCode();';
+    }
+    function genCs(method, url, headers, body, multipart) {
+      var hs = ''; for (var k in headers) hs += 'client.DefaultRequestHeaders.Add("' + k + '", "' + headers[k] + '");\n';
+      if (multipart) return '<span class="comment">// C#</span>\nvar client = new HttpClient();\n' + hs + 'var form = new MultipartFormDataContent();\nform.Add(new StringContent("value"), "field");\nform.Add(new StreamContent(File.OpenRead("file.png")), "image", "file.png");\nvar resp = await client.PostAsync("' + url + '", form);';
+      if (body) {
+        var lines = prettyBody(body).split('\n');
+        var sb = '';
+        for (var i = 0; i < lines.length; i++) {
+          var ln = lines[i].replace(/"/g, '\\"');
+          sb += (i === 0 ? '' : '\n    + ') + '"' + ln + '\\n"';
+        }
+        return '<span class="comment">// C#</span>\nvar client = new HttpClient();\n' + hs + 'var body = ' + sb + ';\nvar content = new StringContent(body, Encoding.UTF8, "application/json");\nvar resp = await client.' + (method==='POST'?'PostAsync':method==='PUT'?'PutAsync':'SendAsync') + '("' + url + '", content);';
+      }
+      return '<span class="comment">// C#</span>\nvar client = new HttpClient();\n' + hs + 'var resp = await client.' + (method==='GET'?'GetAsync':method==='DELETE'?'DeleteAsync':'GetAsync') + '("' + url + '");';
+    }
+    function genTab(lang, code) {
+      var active = lang === 'curl' ? ' active' : '';
+      return '<div class="tab-content' + active + '" data-lang="' + lang + '"><button class="copy-btn" onclick="copyCode(this)">复制</button><pre class="code-block"><code>' + code + '</code></pre></div>';
+    }
+    function initCodeTabs() {
+      document.querySelectorAll('.code-tabs').forEach(function(el) {
+        var method = el.dataset.method || 'GET';
+        var url = el.dataset.url;
+        var headers = {};
+        try { headers = JSON.parse(el.dataset.headers || '{}'); } catch(e) {}
+        var body = el.dataset.body || '';
+        var multipart = el.dataset.multipart === 'true';
+        var langs = ['cURL','JavaScript','Go','Python','Java','C#'];
+        var keys  = ['curl','js','go','python','java','csharp'];
+        var html = '<div class="tab-buttons">';
+        langs.forEach(function(l, i) {
+          html += '<button class="tab-btn' + (i===0?' active':'') + '" onclick="switchTab(this,\'' + keys[i] + '\')">' + l + '</button>';
+        });
+        html += '</div>';
+        html += genTab('curl', genCurl(method,url,headers,body,multipart));
+        html += genTab('js', genJs(method,url,headers,body,multipart));
+        html += genTab('go', genGo(method,url,headers,body,multipart));
+        html += genTab('python', genPy(method,url,headers,body,multipart));
+        html += genTab('java', genJava(method,url,headers,body,multipart));
+        html += genTab('csharp', genCs(method,url,headers,body,multipart));
+        el.innerHTML = html;
+      });
+    }
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', function() {
+      initTreeCollapse();
+      initCardCollapse();
+      initCodeTabs();
+    });
+
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+    document.getElementById('sidebarOverlay').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+    });
+
+    // Code language tabs
+    function switchTab(btn, lang) {
+      var tabs = btn.closest('.code-tabs');
+      tabs.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      tabs.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      tabs.querySelector('.tab-content[data-lang="' + lang + '"]').classList.add('active');
+    }
+    function copyCode(btn) {
+      var code = btn.parentElement.querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(function() {
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+  </script>
+</body>
+</html>
