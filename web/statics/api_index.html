@@ -1014,6 +1014,18 @@
   </div>
 
   <script>
+    // ── Resolve origin from URL param ─────────────────────────────
+    var urlParams = new URLSearchParams(window.location.search);
+    var parentOrigin = (urlParams.get('origin') || '').replace(/\/+$/, '');
+    var apiOrigin = parentOrigin || window.location.origin;
+
+    // ── Replace data-url placeholders ─────────────────────────────
+    function patchDataUrls() {
+      document.querySelectorAll('.code-tabs[data-url]').forEach(function(el) {
+        el.dataset.url = el.dataset.url.replace(/https:\/\/eazyrouter\.io/g, apiOrigin);
+      });
+    }
+
     // Tree collapse: init folders with chevron + click toggle
     function initTreeCollapse() {
       var nav = document.querySelector('.sidebar-nav');
@@ -1156,6 +1168,7 @@
       if (window.top !== window) {
         document.body.classList.add('in-iframe');
       }
+      patchDataUrls();
       initTreeCollapse();
       initCardCollapse();
       initCodeTabs();

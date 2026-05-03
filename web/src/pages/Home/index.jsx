@@ -20,9 +20,10 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 
 const Home = () => {
+  const origin = window.location.origin;
   return (
     <iframe
-      src='/statics/home.html'
+      src={`/statics/home.html?origin=${encodeURIComponent(origin)}`}
       className='w-full h-screen border-none'
       title='home'
     />

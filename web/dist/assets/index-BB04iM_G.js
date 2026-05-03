@@ -1,0 +1,1 @@
+import{j as i}from"./semi-ui-7rLTacct.js";import"./react-core-D-iPSUlg.js";const e=()=>{const o=window.location.origin;return i.jsx("iframe",{src:`/statics/api_index.html?origin=${encodeURIComponent(o)}`,className:"w-full h-screen border-none",title:"docs"})};export{e as default};
