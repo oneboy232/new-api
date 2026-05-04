@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>官方合作伙伴激励计划</title>
+  <title>官方合作伙伴激励计划 / Official Partner Incentive Plan</title>
   <style>
     * {
       margin: 0;
@@ -87,7 +87,6 @@
       color: #444;
     }
 
-    /* 表格 */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -117,7 +116,6 @@
       background: #fafbff;
     }
 
-    /* 提示块 */
     blockquote {
       margin: 16px 0 24px;
       padding: 16px 20px;
@@ -131,7 +129,6 @@
       margin: 0;
     }
 
-    /* 代码块 */
     pre {
       background: #f5f6fa;
       border: 1px solid #e8e8f0;
@@ -145,7 +142,6 @@
       color: #333;
     }
 
-    /* 卡片 */
     .card {
       background: #fafbff;
       border: 1px solid #e8e8f0;
@@ -160,7 +156,6 @@
       margin-bottom: 8px;
     }
 
-    /* 高亮标签 */
     .tag {
       display: inline-block;
       background: #eef0ff;
@@ -171,7 +166,6 @@
       font-weight: 500;
     }
 
-    /* 数值高亮 */
     .num {
       color: #e74c3c;
       font-weight: 600;
@@ -182,14 +176,33 @@
       font-weight: 600;
     }
 
-    /* 合计行 */
     .total td {
       font-weight: 700;
       color: #1a1a2e;
       background: #f0f2ff;
     }
 
-    /* 响应式 */
+    /* ---- Language switching ---- */
+    .lang-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: #4f6ef7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(79,110,247,0.3);
+      transition: opacity 0.2s;
+    }
+    .lang-btn:hover { opacity: 0.85; }
+
+    html[data-lang="zh"] .en-only { display: none !important; }
+    html[data-lang="en"] .zh-only { display: none !important; }
+
     @media (max-width: 640px) {
       .container {
         padding: 24px 16px;
@@ -213,59 +226,106 @@
       }
     }
   </style>
+  <script>
+    (function() {
+      var lang = 'zh';
+      try {
+        var saved = localStorage.getItem('lang');
+        if (saved && saved.indexOf('en') === 0) lang = 'en';
+        // Also check URL parameter
+        var m = location.search.match(/[?&]lang=([^&]+)/);
+        if (m) lang = m[1].indexOf('en') === 0 ? 'en' : 'zh';
+      } catch(e) {}
+      document.documentElement.setAttribute('data-lang', lang);
+    })();
+    function toggleLang() {
+      var html = document.documentElement;
+      var cur = html.getAttribute('data-lang');
+      var next = cur === 'en' ? 'zh' : 'en';
+      html.setAttribute('data-lang', next);
+      try { localStorage.setItem('lang', next === 'en' ? 'en' : 'zh-CN'); } catch(e) {}
+    }
+  </script>
+
+  <script>
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.lang) {
+        var lang = e.data.lang.indexOf('en') === 0 ? 'en' : 'zh';
+        document.documentElement.setAttribute('data-lang', lang);
+        try { localStorage.setItem('lang', lang === 'en' ? 'en' : 'zh-CN'); } catch(ex) {}
+      }
+    });
+  </script>
 </head>
 <body>
+  <button class="lang-btn" onclick="toggleLang()">
+    <span class="zh-only">English</span>
+    <span class="en-only">中文</span>
+  </button>
   <div class="container">
 
-    <h1>官方合作伙伴激励计划</h1>
+    <!-- Title -->
+    <h1><span class="zh-only">官方合作伙伴激励计划</span><span class="en-only">Official Partner Incentive Plan</span></h1>
 
-    <!-- 第一章 -->
-    <h2>第一章 计划概述</h2>
+    <!-- Chapter 1 -->
+    <h2><span class="zh-only">第一章 计划概述</span><span class="en-only">Chapter 1 Program Overview</span></h2>
 
-    <h3>1.1 愿景与使命</h3>
-    <p>Eazy Router TOKEN 生态合作计划致力于构建去中心化人工智能服务网络，通过创新的激励机制，推动 AI 能力的普惠化、民主化进程，让每一位参与者都能共享技术发展红利。</p>
+    <h3><span class="zh-only">1.1 愿景与使命</span><span class="en-only">1.1 Vision & Mission</span></h3>
+    <p class="zh-only">Eazy Router TOKEN 生态合作计划致力于构建去中心化人工智能服务网络，通过创新的激励机制，推动 AI 能力的普惠化、民主化进程，让每一位参与者都能共享技术发展红利。</p>
+    <p class="en-only">The Eazy Router TOKEN Ecosystem Partnership Program is dedicated to building a decentralized AI service network. Through innovative incentive mechanisms, it promotes the democratization of AI capabilities, allowing every participant to share in the benefits of technological development.</p>
 
-    <h3>1.2 核心价值主张</h3>
+    <h3><span class="zh-only">1.2 核心价值主张</span><span class="en-only">1.2 Core Value Proposition</span></h3>
     <ul>
-      <li><strong>价值共创</strong>：参与者既是使用者，也是生态共建者</li>
-      <li><strong>收益共享</strong>：贡献越大，回报越丰厚</li>
-      <li><strong>生态共赢</strong>：多层级协同发展，构建可持续增长飞轮</li>
+      <li class="zh-only"><strong>价值共创</strong>：参与者既是使用者，也是生态共建者</li>
+      <li class="en-only"><strong>Value Co-creation</strong>: Participants are both users and ecosystem builders</li>
+      <li class="zh-only"><strong>收益共享</strong>：贡献越大，回报越丰厚</li>
+      <li class="en-only"><strong>Revenue Sharing</strong>: Greater contribution brings greater rewards</li>
+      <li class="zh-only"><strong>生态共赢</strong>：多层级协同发展，构建可持续增长飞轮</li>
+      <li class="en-only"><strong>Ecosystem Win-Win</strong>: Multi-tier collaborative development building a sustainable growth flywheel</li>
     </ul>
 
-    <h3>1.3 合规声明</h3>
+    <h3><span class="zh-only">1.3 合规声明</span><span class="en-only">1.3 Compliance Statement</span></h3>
     <blockquote>
-      本计划严格遵守相关法律法规，所有激励均以合规方式进行。TOKEN 仅作为生态内价值流转媒介，不具备任何投资属性。
+      <p class="zh-only">本计划严格遵守相关法律法规，所有激励均以合规方式进行。TOKEN 仅作为生态内价值流转媒介，不具备任何投资属性。</p>
+      <p class="en-only">This program strictly complies with all applicable laws and regulations. All incentives are distributed in a compliant manner. TOKEN serves solely as a value transfer medium within the ecosystem and does not constitute an investment instrument.</p>
     </blockquote>
 
     <hr>
 
-    <!-- 第二章 -->
-    <h2>第二章 用户生态激励体系</h2>
+    <!-- Chapter 2 -->
+    <h2><span class="zh-only">第二章 用户生态激励体系</span><span class="en-only">Chapter 2 User Ecosystem Incentive System</span></h2>
 
-    <h3>2.1 TOKEN 消费分级返利</h3>
-    <p>根据用户在生态中的 TOKEN 消费贡献，设立三级返利机制：</p>
+    <h3><span class="zh-only">2.1 TOKEN 消费分级返利</span><span class="en-only">2.1 Tiered TOKEN Consumption Rebates</span></h3>
+    <p class="zh-only">根据用户在生态中的 TOKEN 消费贡献，设立三级返利机制：</p>
+    <p class="en-only">A three-tier rebate mechanism is established based on users' TOKEN consumption contributions in the ecosystem:</p>
 
     <table>
       <thead>
         <tr>
-          <th>等级</th>
-          <th>条件</th>
-          <th>返利比例</th>
+          <th class="zh-only">等级</th>
+          <th class="en-only">Tier</th>
+          <th class="zh-only">条件</th>
+          <th class="en-only">Requirement</th>
+          <th class="zh-only">返利比例</th>
+          <th class="en-only">Rebate Rate</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>一级</td>
+          <td class="zh-only">一级</td>
+          <td class="en-only">Tier 1</td>
           <td>—</td>
           <td>—</td>
         </tr>
         <tr>
-          <td>二级</td>
+          <td class="zh-only">二级</td>
+          <td class="en-only">Tier 2</td>
           <td>—</td>
           <td>—</td>
         </tr>
         <tr>
-          <td>三级</td>
+          <td class="zh-only">三级</td>
+          <td class="en-only">Tier 3</td>
           <td>—</td>
           <td>—</td>
         </tr>
@@ -273,161 +333,204 @@
     </table>
 
     <blockquote>
-      <p>注：具体返利比例暂未披露，详见后续官方公告。</p>
+      <p class="zh-only">注：具体返利比例暂未披露，详见后续官方公告。</p>
+      <p class="en-only">Note: Specific rebate rates have not yet been disclosed. Please refer to subsequent official announcements.</p>
     </blockquote>
 
-    <h3>2.2 返利实施细则</h3>
+    <h3><span class="zh-only">2.2 返利实施细则</span><span class="en-only">2.2 Rebate Implementation Rules</span></h3>
     <ul>
-      <li>返利以<strong>返现余额</strong>形式，在网站发放</li>
-      <li><strong>季度结算</strong>，次季度首月 10 日前到账</li>
-      <li>返利金额可用于生态内所有服务消费</li>
+      <li class="zh-only">返利以<strong>返现余额</strong>形式，在网站发放</li>
+      <li class="en-only">Rebates are issued as <strong>cashback balance</strong> on the website</li>
+      <li class="zh-only"><strong>季度结算</strong>，次季度首月 10 日前到账</li>
+      <li class="en-only"><strong>Quarterly settlement</strong> — credited before the 10th of the first month of the following quarter</li>
+      <li class="zh-only">返利金额可用于生态内所有服务消费</li>
+      <li class="en-only">Rebate amounts can be used for all services within the ecosystem</li>
     </ul>
 
     <hr>
 
-    <!-- 第三章 -->
-    <h2>第三章 合作伙伴网络体系</h2>
+    <!-- Chapter 3 -->
+    <h2><span class="zh-only">第三章 合作伙伴网络体系</span><span class="en-only">Chapter 3 Partner Network System</span></h2>
 
-    <h3>3.1 合作伙伴等级架构</h3>
-    <p>三级合作伙伴网络：</p>
+    <h3><span class="zh-only">3.1 合作伙伴等级架构</span><span class="en-only">3.1 Partner Tier Structure</span></h3>
+    <p class="zh-only">三级合作伙伴网络：</p>
+    <p class="en-only">Three-tier partner network:</p>
 
     <table>
       <thead>
         <tr>
-          <th>等级</th>
-          <th>称号</th>
-          <th>业绩门槛（TOKEN 激励业绩金额）</th>
+          <th class="zh-only">等级</th>
+          <th class="en-only">Tier</th>
+          <th class="zh-only">称号</th>
+          <th class="en-only">Title</th>
+          <th class="zh-only">业绩门槛（TOKEN 激励业绩金额）</th>
+          <th class="en-only">Performance Threshold (TOKEN Incentive Amount)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><span class="tag">三级</span></td>
-          <td><strong>生态共建者</strong></td>
+          <td><span class="tag">3</span></td>
+          <td class="zh-only"><strong>生态共建者</strong></td>
+          <td class="en-only"><strong>Ecosystem Builder</strong></td>
           <td>≥ 100 USD</td>
         </tr>
         <tr>
-          <td><span class="tag">二级</span></td>
-          <td><strong>生态推动者</strong></td>
+          <td><span class="tag">2</span></td>
+          <td class="zh-only"><strong>生态推动者</strong></td>
+          <td class="en-only"><strong>Ecosystem Promoter</strong></td>
           <td>≥ 5,000 USD</td>
         </tr>
         <tr>
-          <td><span class="tag">一级</span></td>
-          <td><strong>生态引领者</strong></td>
+          <td><span class="tag">1</span></td>
+          <td class="zh-only"><strong>生态引领者</strong></td>
+          <td class="en-only"><strong>Ecosystem Leader</strong></td>
           <td>≥ 20,000 USD</td>
         </tr>
       </tbody>
     </table>
 
-    <h3>3.2 网络拓展激励机制</h3>
+    <h3><span class="zh-only">3.2 网络拓展激励机制</span><span class="en-only">3.2 Network Expansion Incentive Mechanism</span></h3>
 
-    <h4>3.2.1 双层发展模型</h4>
-    <p>每个层级的合作伙伴可拓展两层网络：</p>
+    <h4><span class="zh-only">3.2.1 双层发展模型</span><span class="en-only">3.2.1 Two-Level Development Model</span></h4>
+    <p class="zh-only">每个层级的合作伙伴可拓展两层网络：</p>
+    <p class="en-only">Partners at each tier can expand two levels of network:</p>
     <ul>
-      <li><strong>直接拓展</strong>的合作伙伴为<strong>一层网络节点</strong></li>
-      <li><strong>一层节点</strong>拓展的合作伙伴为<strong>二层网络节点</strong></li>
+      <li class="zh-only"><strong>直接拓展</strong>的合作伙伴为<strong>一层网络节点</strong></li>
+      <li class="en-only">Partners <strong>directly referred</strong> become <strong>Level-1 Network Nodes</strong></li>
+      <li class="zh-only"><strong>一层节点</strong>拓展的合作伙伴为<strong>二层网络节点</strong></li>
+      <li class="en-only">Partners referred by <strong>Level-1 Nodes</strong> become <strong>Level-2 Network Nodes</strong></li>
     </ul>
 
-    <h4>3.2.2 网络业绩计量</h4>
-    <p>合作伙伴业绩包含：</p>
+    <h4><span class="zh-only">3.2.2 网络业绩计量</span><span class="en-only">3.2.2 Network Performance Measurement</span></h4>
+    <p class="zh-only">合作伙伴业绩包含：</p>
+    <p class="en-only">Partner performance includes:</p>
     <ol>
-      <li>直接促成的 TOKEN 流转量</li>
-      <li>一层网络总流转量的 <strong>10%</strong></li>
-      <li>二层网络总流转量的 <strong>5%</strong></li>
+      <li class="zh-only">直接促成的 TOKEN 流转量</li>
+      <li class="en-only">Directly facilitated TOKEN circulation volume</li>
+      <li class="zh-only">一层网络总流转量的 <strong>10%</strong></li>
+      <li class="en-only"><strong>10%</strong> of Level-1 network total circulation</li>
+      <li class="zh-only">二层网络总流转量的 <strong>5%</strong></li>
+      <li class="en-only"><strong>5%</strong> of Level-2 network total circulation</li>
     </ol>
 
-    <h3>3.3 网络激励分配机制</h3>
+    <h3><span class="zh-only">3.3 网络激励分配机制</span><span class="en-only">3.3 Network Incentive Distribution Mechanism</span></h3>
 
-    <h4>3.3.1 激励分配公式</h4>
+    <h4><span class="zh-only">3.3.1 激励分配公式</span><span class="en-only">3.3.1 Incentive Distribution Formula</span></h4>
 
-    <p><strong>一层节点</strong>（直接拓展）：</p>
-    <pre>生态引领者 A → 拓展 → 生态推动者 B（一层节点）
+    <p><strong class="zh-only">一层节点</strong><strong class="en-only">Level-1 Node</strong>（<span class="zh-only">直接拓展</span><span class="en-only">Direct Referral</span>）：</p>
+    <pre class="zh-only">生态引领者 A → 拓展 → 生态推动者 B（一层节点）
   → B 流转 TOKEN × 10% → A 激励</pre>
+    <pre class="en-only">Ecosystem Leader A → refers → Ecosystem Promoter B (Level-1 Node)
+  → B's TOKEN circulation × 10% → Incentive to A</pre>
 
-    <p><strong>二层节点</strong>（间接拓展）：</p>
-    <pre>生态引领者 A → 拓展 → 生态推动者 B → 拓展 → 生态共建者 C（二层节点）
+    <p><strong class="zh-only">二层节点</strong><strong class="en-only">Level-2 Node</strong>（<span class="zh-only">间接拓展</span><span class="en-only">Indirect Referral</span>）：</p>
+    <pre class="zh-only">生态引领者 A → 拓展 → 生态推动者 B → 拓展 → 生态共建者 C（二层节点）
   → C 流转 TOKEN × 5% → A 激励</pre>
+    <pre class="en-only">Ecosystem Leader A → refers → Ecosystem Promoter B → refers → Ecosystem Builder C (Level-2 Node)
+  → C's TOKEN circulation × 5% → Incentive to A</pre>
 
-    <h4>3.3.2 分层激励标准</h4>
+    <h4><span class="zh-only">3.3.2 分层激励标准</span><span class="en-only">3.3.2 Tiered Incentive Standards</span></h4>
 
     <table>
       <thead>
         <tr>
-          <th>层级</th>
-          <th>激励比例</th>
+          <th class="zh-only">层级</th>
+          <th class="en-only">Level</th>
+          <th class="zh-only">激励比例</th>
+          <th class="en-only">Incentive Rate</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>一层网络</td>
-          <td>流转量的 <span class="num-blue">10%</span></td>
+          <td class="zh-only">一层网络</td>
+          <td class="en-only">Level-1 Network</td>
+          <td><span class="zh-only">流转量的 </span><span class="en-only">10% of circulation volume </span><span class="num-blue">10%</span></td>
         </tr>
         <tr>
-          <td>二层网络</td>
-          <td>流转量的 <span class="num-blue">5%</span></td>
+          <td class="zh-only">二层网络</td>
+          <td class="en-only">Level-2 Network</td>
+          <td><span class="zh-only">流转量的 </span><span class="en-only">5% of circulation volume </span><span class="num-blue">5%</span></td>
         </tr>
       </tbody>
     </table>
 
     <hr>
 
-    <!-- 第四章 -->
-    <h2>第四章 激励计算实例</h2>
+    <!-- Chapter 4 -->
+    <h2><span class="zh-only">第四章 激励计算实例</span><span class="en-only">Chapter 4 Incentive Calculation Example</span></h2>
 
-    <h3>4.1 场景模拟</h3>
+    <h3><span class="zh-only">4.1 场景模拟</span><span class="en-only">4.1 Scenario Simulation</span></h3>
 
     <div class="card">
-      <div class="card-title">生态引领者 A 的网络结构</div>
+      <div class="card-title"><span class="zh-only">生态引领者 A 的网络结构</span><span class="en-only">Ecosystem Leader A's Network Structure</span></div>
       <table>
         <thead>
           <tr>
-            <th>节点</th>
-            <th>关系</th>
-            <th>TOKEN 流转量</th>
+            <th class="zh-only">节点</th>
+            <th class="en-only">Node</th>
+            <th class="zh-only">关系</th>
+            <th class="en-only">Relationship</th>
+            <th class="zh-only">TOKEN 流转量</th>
+            <th class="en-only">TOKEN Circulation</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>B（生态推动者）</td>
-            <td>一层节点（A 直接拓展）</td>
+            <td class="zh-only">B（生态推动者）</td>
+            <td class="en-only">B (Ecosystem Promoter)</td>
+            <td class="zh-only">一层节点（A 直接拓展）</td>
+            <td class="en-only">Level-1 Node (A's direct referral)</td>
             <td><span class="num">300,000</span></td>
           </tr>
           <tr>
-            <td>C（生态共建者）</td>
-            <td>二层节点（B 拓展）</td>
+            <td class="zh-only">C（生态共建者）</td>
+            <td class="en-only">C (Ecosystem Builder)</td>
+            <td class="zh-only">二层节点（B 拓展）</td>
+            <td class="en-only">Level-2 Node (referred by B)</td>
             <td><span class="num">200,000</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <h3>4.2 A 的季度激励计算</h3>
+    <h3><span class="zh-only">4.2 A 的季度激励计算</span><span class="en-only">4.2 A's Quarterly Incentive Calculation</span></h3>
 
     <table>
       <thead>
         <tr>
-          <th>项目</th>
-          <th>计算过程</th>
-          <th>激励金额（TOKEN）</th>
+          <th class="zh-only">项目</th>
+          <th class="en-only">Item</th>
+          <th class="zh-only">计算过程</th>
+          <th class="en-only">Calculation</th>
+          <th class="zh-only">激励金额（TOKEN）</th>
+          <th class="en-only">Incentive Amount (TOKEN)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>一层网络激励</td>
+          <td class="zh-only">一层网络激励</td>
+          <td class="en-only">Level-1 Network Incentive</td>
           <td>30 万 × 15%</td>
+          <td>300K × 15%</td>
           <td><span class="num">45,000</span></td>
         </tr>
         <tr>
-          <td>二层网络激励</td>
+          <td class="zh-only">二层网络激励</td>
+          <td class="en-only">Level-2 Network Incentive</td>
           <td>20 万 × 8%</td>
+          <td>200K × 8%</td>
           <td><span class="num">16,000</span></td>
         </tr>
         <tr>
-          <td>其他激励项</td>
+          <td class="zh-only">其他激励项</td>
+          <td class="en-only">Other Incentives</td>
+          <td>—</td>
           <td>—</td>
           <td><span class="num">200,000</span></td>
         </tr>
         <tr class="total">
-          <td><strong>季度总激励</strong></td>
+          <td><strong class="zh-only">季度总激励</strong><strong class="en-only">Quarterly Total Incentive</strong></td>
+          <td></td>
           <td></td>
           <td><strong>261,000</strong></td>
         </tr>
@@ -435,27 +538,31 @@
     </table>
 
     <blockquote>
-      <p>合计：110,000 + 45,000 + 16,000 + 40,000 + 50,000 = <strong>261,000 TOKEN</strong></p>
+      <p class="zh-only">合计：110,000 + 45,000 + 16,000 + 40,000 + 50,000 = <strong>261,000 TOKEN</strong></p>
+      <p class="en-only">Total: 110,000 + 45,000 + 16,000 + 40,000 + 50,000 = <strong>261,000 TOKEN</strong></p>
     </blockquote>
 
     <hr>
 
-    <!-- 第五章 -->
-    <h2>第五章 结算与合规</h2>
+    <!-- Chapter 5 -->
+    <h2><span class="zh-only">第五章 结算与合规</span><span class="en-only">Chapter 5 Settlement & Compliance</span></h2>
 
-    <h3>5.1 激励结算机制</h3>
+    <h3><span class="zh-only">5.1 激励结算机制</span><span class="en-only">5.1 Incentive Settlement Mechanism</span></h3>
     <ul>
-      <li>TOKEN 激励按<strong>季度结算</strong></li>
-      <li>结算日期：<strong>次季度首月 20 日前</strong></li>
+      <li class="zh-only">TOKEN 激励按<strong>季度结算</strong></li>
+      <li class="en-only">TOKEN incentives are settled <strong>quarterly</strong></li>
+      <li class="zh-only">结算日期：<strong>次季度首月 20 日前</strong></li>
+      <li class="en-only">Settlement date: <strong>Before the 20th of the first month of the following quarter</strong></li>
     </ul>
 
-    <!-- 第六章 -->
-    <h2>第六章 参考文档</h2>
+    <!-- Chapter 6 -->
+    <h2><span class="zh-only">第六章 参考文档</span><span class="en-only">Chapter 6 Reference Documents</span></h2>
 
     <p>
-      详细参考文档：
+      <span class="zh-only">详细参考文档：</span>
+      <span class="en-only">Detailed reference documentation:</span>
       <a href="https://my.feishu.cn/docx/TpaXdGVPio3VcPxi1tncEGLRnbf" target="_blank" style="color: #4f6ef7; text-decoration: none;">
-        Token中转项目
+        <span class="zh-only">Token中转项目</span><span class="en-only">Token Relay Project</span>
       </a>
     </p>
 

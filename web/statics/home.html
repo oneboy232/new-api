@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eazy Router — 统一的大模型接口网关</title>
+  <title id="page-title">Eazy Router — 统一的大模型接口网关</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -65,6 +65,27 @@
       background-clip: text;
     }
 
+    /* ---- Language switching ---- */
+    .lang-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(79,126,247,0.3);
+      transition: opacity 0.2s;
+      font-family: var(--font);
+    }
+    .lang-btn:hover { opacity: 0.85; }
+
+    html[data-lang="zh"] .en-only { display: none !important; }
+    html[data-lang="en"] .zh-only { display: none !important; }
 
 /* ===================== Hero ===================== */
     .hero {
@@ -397,8 +418,6 @@
     }
     [data-theme="dark"] .feature-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
 
-    /* Row 1: card 1 wide (col-span 1, but taller), card 2 narrow */
-    /* Row 2: card 3 narrow, card 4 wide */
     .feature-card.wide  { grid-column: span 1; }
     .feature-card.highlight {
       grid-column: span 1;
@@ -432,7 +451,6 @@
       font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7;
     }
 
-    /* decorative bg glow per card */
     .feature-card::after {
       content: ''; position: absolute;
       bottom: -30px; right: -30px;
@@ -477,10 +495,50 @@
       .cta-banner { padding: 40px 24px; }
     }
   </style>
+  <script>
+    (function() {
+      var lang = 'zh';
+      try {
+        var saved = localStorage.getItem('lang');
+        if (saved && saved.indexOf('en') === 0) lang = 'en';
+        var m = location.search.match(/[?&]lang=([^&]+)/);
+        if (m) lang = m[1].indexOf('en') === 0 ? 'en' : 'zh';
+      } catch(e) {}
+      document.documentElement.setAttribute('data-lang', lang);
+      // Update page title
+      var titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = lang === 'en' ? 'Eazy Router — Unified LLM API Gateway' : 'Eazy Router — 统一的大模型接口网关';
+    })();
+    function toggleLang() {
+      var html = document.documentElement;
+      var cur = html.getAttribute('data-lang');
+      var next = cur === 'en' ? 'zh' : 'en';
+      html.setAttribute('data-lang', next);
+      try { localStorage.setItem('lang', next === 'en' ? 'en' : 'zh-CN'); } catch(e) {}
+      // Update page title
+      var titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = next === 'en' ? 'Eazy Router — Unified LLM API Gateway' : 'Eazy Router — 统一的大模型接口网关';
+    }
+  </script>
+
+  <script>
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.lang) {
+        var lang = e.data.lang.indexOf('en') === 0 ? 'en' : 'zh';
+        document.documentElement.setAttribute('data-lang', lang);
+        try { localStorage.setItem('lang', lang === 'en' ? 'en' : 'zh-CN'); } catch(ex) {}
+        var titleEl = document.getElementById('page-title');
+        if (titleEl) titleEl.textContent = lang === 'en' ? 'Eazy Router — Unified LLM API Gateway' : 'Eazy Router — 统一的大模型接口网关';
+      }
+    });
+  </script>
 </head>
 <body>
 
-
+  <button class="lang-btn" onclick="toggleLang()">
+    <span class="zh-only">English</span>
+    <span class="en-only">中文</span>
+  </button>
 
   <!-- ========== HERO ========== -->
   <section class="hero">
@@ -488,20 +546,31 @@
       <div class="hero-layout">
 
         <div class="hero-left">
-          <div class="hero-badge">⚡ 改个 URL，全部模型直接用</div>
+          <div class="hero-badge">
+            <span class="zh-only">⚡ 改个 URL，全部模型直接用</span>
+            <span class="en-only">⚡ Change the URL, use any model directly</span>
+          </div>
 
           <h1>
-            <span class="h1-line1">统一的&nbsp;<span class="gradient-text" id="title-model"></span><span class="title-cursor">|</span></span>
-            大模型接口网关
+            <span class="h1-line1">
+              <span class="zh-only">统一的&nbsp;</span>
+              <span class="gradient-text" id="title-model"></span><span class="title-cursor">|</span>
+              <span class="en-only">&nbsp;Unified</span>
+            </span>
+            <span class="zh-only">大模型接口网关</span>
+            <span class="en-only">LLM API Gateway</span>
           </h1>
 
-          <p class="hero-sub">更好的价格，更好的稳定性，只需要将模型基址替换为：</p>
+          <p class="hero-sub">
+            <span class="zh-only">更好的价格，更好的稳定性，只需要将模型基址替换为：</span>
+            <span class="en-only">Better pricing, better stability — just replace your API base URL:</span>
+          </p>
 
           <div class="hero-api-row">
             <input class="hero-api-input" id="apiBaseUrl" type="text" value="" readonly
-                   onclick="this.select()" spellcheck="false" aria-label="API 基址" />
+                   onclick="this.select()" spellcheck="false" aria-label="API Base URL" />
             <div class="hero-api-divider"></div>
-            <div class="hero-api-carousel" aria-label="API 端点">
+            <div class="hero-api-carousel" aria-label="API Endpoints">
               <div class="hero-api-carousel-inner" id="apiCarousel">
                 <span class="hero-api-carousel-item active">/v1/chat/completions</span>
                 <span class="hero-api-carousel-item">/v1/responses</span>
@@ -516,29 +585,34 @@
                 <span class="hero-api-carousel-item">/v1/audio/transcriptions</span>
               </div>
             </div>
-            <button class="hero-api-copy" id="copyApiBtn" aria-label="复制完整 API 地址">
+            <button class="hero-api-copy" id="copyApiBtn" aria-label="Copy full API URL">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
               </svg>
-              <span class="hero-api-copy-tip" id="copyTip">已复制</span>
+              <span class="hero-api-copy-tip" id="copyTip">
+                <span class="zh-only">已复制</span>
+                <span class="en-only">Copied</span>
+              </span>
             </button>
           </div>
 
           <div class="hero-cta">
             <a href="/console/token" class="btn-cta-primary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              获取密钥
+              <span class="zh-only">获取密钥</span>
+              <span class="en-only">Get API Key</span>
             </a>
             <a href="/docs" class="btn-cta-secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              查看文档
+              <span class="zh-only">查看文档</span>
+              <span class="en-only">Documentation</span>
             </a>
           </div>
         </div>
 
         <div class="hero-right">
-          <div class="terminal-wrap" role="img" aria-label="API 调用代码示例">
+          <div class="terminal-wrap" role="img" aria-label="API call code example">
             <div class="terminal-header">
               <div class="terminal-dot"></div>
               <div class="terminal-dot"></div>
@@ -550,7 +624,7 @@
               <span class="t-key">curl</span> <span class="t-symbol">-X POST</span> <span class="t-url"><span id="termApiUrl">https://eazyrouter.io</span>/v1/chat/completions</span> \<br>
               &nbsp;&nbsp;<span class="t-symbol">-H</span> <span class="t-string">"Authorization: Bearer <span class="t-value">sk-***</span>"</span> \<br>
               &nbsp;&nbsp;<span class="t-symbol">-d</span> <span class="t-symbol">{</span><br>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"model"</span><span class="t-symbol">:</span> <span class="t-string">"<span id="termModel">gemini-3.1-pro-preview</span>"</span>,<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"model"</span><span class="t-symbol">:</span> <span class="t-string">"<span id="termModel">gemini-2.5-flash-preview-05-06</span>"</span>,<br>
               &nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"messages"</span><span class="t-symbol">:</span> <span class="t-symbol">[{</span><br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"role"</span><span class="t-symbol">:</span> <span class="t-string">"user"</span>,<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"content"</span><span class="t-symbol">:</span> <span class="t-string">"Hello!"</span><br>
@@ -568,7 +642,10 @@
   <section class="section" style="padding-top:40px;padding-bottom:48px;">
     <div class="container">
       <p class="section-label">Providers Integrated</p>
-      <h2 class="section-title">提供众多的顶级优质大模型 <span class="gradient-text">40+</span></h2>
+      <h2 class="section-title">
+        <span class="zh-only">提供众多的顶级优质大模型 <span class="gradient-text">40+</span></span>
+        <span class="en-only">Access <span class="gradient-text">40+</span> Premium AI Models</span>
+      </h2>
     </div>
     <div class="providers-rows" style="margin-top:36px;">
       <div class="providers-track ltr">
@@ -622,33 +699,63 @@
   <!-- ========== FEATURES ========== -->
   <section class="section" style="padding-top:20px;">
     <div class="container">
-      <h2 class="section-title">为什么选择我们</h2>
-      <p class="section-sub">专为开发者与企业打造的高可用 AI 网关</p>
+      <h2 class="section-title">
+        <span class="zh-only">为什么选择我们</span>
+        <span class="en-only">Why Choose Us</span>
+      </h2>
+      <p class="section-sub">
+        <span class="zh-only">专为开发者与企业打造的高可用 AI 网关</span>
+        <span class="en-only">A high-availability AI gateway built for developers and enterprises</span>
+      </p>
 
       <div class="features-bento">
 
         <div class="feature-card highlight">
           <div class="feature-icon">⚡</div>
-          <h3 class="feature-title">极速响应</h3>
-          <p class="feature-desc">全球多节点部署，智能路由选择最优线路，P99 延迟低于 200ms</p>
+          <h3 class="feature-title">
+            <span class="zh-only">极速响应</span>
+            <span class="en-only">Lightning Fast</span>
+          </h3>
+          <p class="feature-desc">
+            <span class="zh-only">全球多节点部署，智能路由选择最优线路，P99 延迟低于 200ms</span>
+            <span class="en-only">Global multi-node deployment with intelligent routing. P99 latency under 200ms.</span>
+          </p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🛡️</div>
-          <h3 class="feature-title">稳定可靠</h3>
-          <p class="feature-desc">自动故障转移与负载均衡，99.9% 可用性 SLA 保障</p>
+          <h3 class="feature-title">
+            <span class="zh-only">稳定可靠</span>
+            <span class="en-only">Reliable</span>
+          </h3>
+          <p class="feature-desc">
+            <span class="zh-only">自动故障转移与负载均衡，99.9% 可用性 SLA 保障</span>
+            <span class="en-only">Automatic failover and load balancing. 99.9% uptime SLA.</span>
+          </p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🔌</div>
-          <h3 class="feature-title">标准接口</h3>
-          <p class="feature-desc">完全兼容 OpenAI API 格式，一行代码切换，零迁移成本</p>
+          <h3 class="feature-title">
+            <span class="zh-only">标准接口</span>
+            <span class="en-only">Standard API</span>
+          </h3>
+          <p class="feature-desc">
+            <span class="zh-only">完全兼容 OpenAI API 格式，一行代码切换，零迁移成本</span>
+            <span class="en-only">Fully OpenAI API-compatible. Change one line of code, zero migration cost.</span>
+          </p>
         </div>
 
         <div class="feature-card highlight">
           <div class="feature-icon">🌐</div>
-          <h3 class="feature-title">全模型覆盖</h3>
-          <p class="feature-desc">覆盖 GPT、Claude、Gemini、DeepSeek 等顶级优质大模型</p>
+          <h3 class="feature-title">
+            <span class="zh-only">全模型覆盖</span>
+            <span class="en-only">Full Model Coverage</span>
+          </h3>
+          <p class="feature-desc">
+            <span class="zh-only">覆盖 GPT、Claude、Gemini、DeepSeek 等顶级优质大模型</span>
+            <span class="en-only">Access GPT, Claude, Gemini, DeepSeek, and other top-tier models.</span>
+          </p>
         </div>
 
       </div>
@@ -659,10 +766,17 @@
   <section class="section" style="padding-top:0;">
     <div class="container">
       <div class="cta-banner">
-        <h2>开始使用</h2>
-        <p>只需替换 API 基址，即可接入全球主流大模型</p>
+        <h2>
+          <span class="zh-only">开始使用</span>
+          <span class="en-only">Get Started</span>
+        </h2>
+        <p>
+          <span class="zh-only">只需替换 API 基址，即可接入全球主流大模型</span>
+          <span class="en-only">Just replace your API base URL to access leading AI models worldwide</span>
+        </p>
         <a href="/console/token" class="btn-cta-primary" style="font-size:1rem;padding:13px 36px;">
-          快速开始
+          <span class="zh-only">快速开始</span>
+          <span class="en-only">Get Started</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
       </div>
@@ -672,8 +786,6 @@
 
   <!-- ========== JS ========== -->
   <script>
-
-    // Theme toggle (default: light)
 
     // Typewriter carousel
     const titleModels = [
@@ -709,7 +821,6 @@
           setTimeout(tick, TYPE_SPEED);
         } else {
           cursorEl.style.animationPlayState = 'running';
-          // sync terminal model name
           if (termModelEl && modelApiMap[word]) {
             termModelEl.textContent = modelApiMap[word];
           }
@@ -799,7 +910,6 @@
         if (parentOrigin) {
           window.top.location.href = parentOrigin + href;
         } else {
-          // cross-origin fallback: navigate top window (if allowed)
           try { window.top.location.href = href; } catch(e) {}
         }
       }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API 参考 | Eazy Router</title>
+  <title id="page-title">API 参考 | Eazy Router</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -370,6 +370,28 @@
     .tree-collapsible { transition: opacity 0.15s ease; }
     .tree-collapsible.collapsed { display: none !important; }
 
+    
+    /* ---- Language switching ---- */
+    .lang-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(79,110,247,0.3);
+      transition: opacity 0.2s;
+      font-family: inherit;
+    }
+    .lang-btn:hover { opacity: 0.85; }
+    html[data-lang="zh"] .en-only { display: none !important; }
+    html[data-lang="en"] .zh-only { display: none !important; }
+
     /* ===== Responsive ===== */
     @media (max-width: 1024px) {
       :root { --sidebar-width: 260px; }
@@ -439,8 +461,52 @@
     .copy-btn:hover { background: rgba(255,255,255,0.2); color: #e4e4e7; }
     .copy-btn.copied { background: #22c55e; color: #fff; border-color: #22c55e; }
   </style>
+  <script>
+    (function() {
+      var lang = 'zh';
+      try {
+        var saved = localStorage.getItem('lang');
+        if (saved && saved.indexOf('en') === 0) lang = 'en';
+        var m = location.search.match(/[?&]lang=([^&]+)/);
+        if (m) lang = m[1].indexOf('en') === 0 ? 'en' : 'zh';
+      } catch(e) {}
+      document.documentElement.setAttribute('data-lang', lang);
+      // Update page title
+      var titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = lang === 'en' ? 'API Reference | Eazy Router' : 'API 参考 | Eazy Router';
+    })();
+    function toggleLang() {
+      var html = document.documentElement;
+      var cur = html.getAttribute('data-lang');
+      var next = cur === 'en' ? 'zh' : 'en';
+      html.setAttribute('data-lang', next);
+      try { localStorage.setItem('lang', next === 'en' ? 'en' : 'zh-CN'); } catch(e) {}
+      // Update page title
+      var titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.textContent = next === 'en' ? 'API Reference | Eazy Router' : 'API 参考 | Eazy Router';
+    }
+  </script>
+
+  <script>
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.lang) {
+        var lang = e.data.lang.indexOf('en') === 0 ? 'en' : 'zh';
+        document.documentElement.setAttribute('data-lang', lang);
+        try { localStorage.setItem('lang', lang === 'en' ? 'en' : 'zh-CN'); } catch(ex) {}
+        var titleEl = document.getElementById('page-title');
+        if (titleEl) titleEl.textContent = lang === 'en' ? 'API Reference | Eazy Router' : 'API 参考 | Eazy Router';
+        // Re-render code-tabs with correct language body
+        if (typeof initCodeTabs === 'function') initCodeTabs();
+      }
+    });
+  </script>
 </head>
 <body>
+  <button class="lang-btn" onclick="toggleLang()">
+    <span class="zh-only">English</span>
+    <span class="en-only">中文</span>
+  </button>
+  
   <div class="layout">
     <!-- Mobile overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -452,74 +518,74 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
           </svg>
-          <span>API 参考</span>
+          <span><span class="zh-only">API 参考</span><span class="en-only">API Reference</span></span>
         </div>
       </div>
 
       <div class="sidebar-nav">
-        <a class="tree-item active" href="#overview">概览</a>
+        <a class="tree-item active" href="#overview"><span class="zh-only">概览</span><span class="en-only">Overview</span></a>
 
-        <!-- 模型 -->
+        <!-- <span class="zh-only">模型</span><span class="en-only">Models</span> -->
         <div class="tree-folder">
           <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
-          模型（Models）
+          <span class="zh-only">（Models）</span><span class="en-only">Models</span>
         </div>
         <div class="tree-nested">
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            列出模型
+            <span class="zh-only">列出</span><span class="en-only">List Models</span>
           </div>
           <a class="tree-sub-item" href="#models-openai">
-            原生 OpenAI 格式 <span class="method-tag get">GET</span>
+            <span class="zh-only">原生 OpenAI 格式</span><span class="en-only">Native OpenAI Format</span> <span class="method-tag get">GET</span>
           </a>
           <a class="tree-sub-item" href="#models-gemini">
-            原生 Gemini 格式 <span class="method-tag get">GET</span>
+            <span class="zh-only">原生 Gemini 格式</span><span class="en-only">Native Gemini Format</span> <span class="method-tag get">GET</span>
           </a>
         </div>
 
-        <!-- 聊天 -->
+        <!-- <span class="zh-only">聊天</span><span class="en-only">Chat</span> -->
         <div class="tree-folder">
           <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-          聊天
+          <span class="zh-only">聊天</span><span class="en-only">Chat</span>
         </div>
         <div class="tree-nested">
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            原生Claude格式
+            <span class="zh-only">原生Claude格式</span><span class="en-only">Native Claude Format</span>
           </div>
-          <a class="tree-sub-item" href="#chat-claude">原生Claude格式 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-claude"><span class="zh-only">原生Claude格式</span><span class="en-only">Native Claude Format</span> <span class="method-tag post">POST</span></a>
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            原生Gemini格式
+            <span class="zh-only">原生Gemini格式</span><span class="en-only">Native Gemini Format</span>
           </div>
-          <a class="tree-sub-item" href="#chat-gemini-media">Gemini 媒体识别 <span class="method-tag post">POST</span></a>
-          <a class="tree-sub-item" href="#chat-gemini-text">Gemini 文本聊天 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-gemini-media"><span class="zh-only">Gemini 媒体识别</span><span class="en-only">Gemini Media Recognition</span> <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-gemini-text"><span class="zh-only">Gemini 文本</span><span class="en-only">Gemini text chat</span> <span class="method-tag post">POST</span></a>
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            原始OpenAi格式
+            <span class="zh-only">原始OpenAi格式</span><span class="en-only">Native OpenAI Format</span>
           </div>
-          <a class="tree-sub-item" href="#chat-openai">ChatCompletions 格式 <span class="method-tag post">POST</span></a>
-          <a class="tree-sub-item" href="#chat-responses">Responses 格式 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-openai"><span class="zh-only">ChatCompletions 格式</span><span class="en-only">Chat Completions</span> <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#chat-responses"><span class="zh-only">Responses 格式</span><span class="en-only">Responses</span> <span class="method-tag post">POST</span></a>
         </div>
 
-        <!-- 图像 -->
+        <!-- <span class="zh-only">图像</span><span class="en-only">Images</span> -->
         <div class="tree-folder">
           <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg></span>
-          图像
+          <span class="zh-only">图像</span><span class="en-only">Images</span>
         </div>
         <div class="tree-nested">
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            原生Gemini格式
+            <span class="zh-only">原生Gemini格式</span><span class="en-only">Native Gemini Format</span>
           </div>
-          <a class="tree-sub-item" href="#images-gemini-gen">Gemini 原生格式 <span class="method-tag post">POST</span></a>
-          <a class="tree-sub-item" href="#images-gemini-chat">OpenAI 聊天格式 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-gemini-gen"><span class="zh-only">Gemini 原生格式</span><span class="en-only">Native Gemini Format</span> <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-gemini-chat"><span class="zh-only"></span><span class="en-only">OpenAI Chat Format</span> <span class="method-tag post">POST</span></a>
           <div class="tree-folder" style="font-size:13px;padding:3px 20px 2px;">
             <span class="tree-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-            原始OpenAi格式
+            <span class="zh-only">原始OpenAi格式</span><span class="en-only">Native OpenAI Format</span>
           </div>
-          <a class="tree-sub-item" href="#images-edit">图像编辑 <span class="method-tag post">POST</span></a>
-          <a class="tree-sub-item" href="#images-generate">生成图像 <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-edit"><span class="zh-only">图像编辑</span><span class="en-only">Image Edit</span> <span class="method-tag post">POST</span></a>
+          <a class="tree-sub-item" href="#images-generate"><span class="zh-only"></span><span class="en-only">Generate Image</span> <span class="method-tag post">POST</span></a>
         </div>
 
       </div>
@@ -537,48 +603,48 @@
       <div class="content">
         <!-- Page Header -->
         <div class="page-header" id="overview">
-          <h1>API 参考</h1>
-          <p>Eazy Router 提供完整的 RESTful API 接口，分为 <strong>AI 模型接口</strong> 和 <strong>管理接口</strong> 两大类。</p>
+          <h1><span class="zh-only">API 参考</span><span class="en-only">API Reference</span></h1>
+          <p><span class="zh-only">Eazy Router 提供完整的 RESTful API 接口，分为 <strong>AI 模型接口</strong> 和 <strong>管理接口</strong> 两大类。</span><span class="en-only">Eazy Router provides a complete RESTful API, divided into <strong>AI Model APIs</strong> and <strong>Management APIs</strong>.</span></p>
           <div class="badge-row">
             <span class="badge badge-blue">RESTful API</span>
-            <span class="badge badge-green">兼容 OpenAI</span>
+            <span class="badge badge-green"><span class="zh-only">兼容 OpenAI</span><span class="en-only">OpenAI Compatible</span></span>
           </div>
         </div>
 
         <div class="section">
           <p class="section-desc">
-            AI 模型接口提供各种 AI 能力的调用，兼容 OpenAI API 格式。所有接口均使用 Bearer Token 鉴权。
+            <span class="zh-only">AI 模型接口提供各种 AI 能力的调用，兼容 OpenAI API 格式，所有接口均使用 Bearer Token 鉴权。</span><span class="en-only">AI Models API provides access to various AI capabilities, compatible with OpenAI API format, all endpoints use Bearer Token authentication.</span>
           </p>
         </div>
 
         <!-- ============================================= -->
-        <!-- 1. 模型列表 - OpenAI 格式 -->
+        <!-- 1. <span class="zh-only">模型</span><span class="en-only">Models</span>列表 - OpenAI 格式 -->
         <!-- ============================================= -->
         <div class="section" id="models-openai">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            列出模型 — 原生 OpenAI 格式
+            <span class="zh-only">List Models — 原生 OpenAI 格式</span><span class="en-only">List Models — Native OpenAI Format</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method get">GET</span>
               <span class="api-path">/v1/models</span>
-              <span class="api-title">获取可用模型列表</span>
+              <span class="api-title"><span class="zh-only">获取可用列表</span><span class="en-only">List available models</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">获取当前可用的模型列表。根据请求头自动识别返回格式（Claude/Gemini/OpenAI）。</p>
+              <p class="api-desc"><span class="zh-only">获取当前可用的列表，根据请求头自动识别返回格式（Claude/Gemini/OpenAI）。</span><span class="en-only">Get the list of available models, response format is auto-detected from request headers (Claude/Gemini/OpenAI).</span></p>
 
-              <div class="info-block"><strong>注意：</strong> 携带 <code>x-api-key</code> 返回原生 Claude 格式，携带 <code>x-goog-api-key</code> 返回原生 Gemini 格式，其他情况返回 OpenAI 格式。</div>
+              <div class="info-block"><strong><span class="zh-only">注意：</span><span class="en-only">Note:</span></strong> <span class="zh-only">携带 <code>x-api-key</code> 返回原生 Claude 格式，携带 <code>x-goog-api-key</code> 返回原生 Gemini 格式，其他情况返回 OpenAI 格式。</span><span class="en-only">Send <code>x-api-key</code> for native Claude format, <code>x-goog-api-key</code> for native Gemini format, otherwise returns OpenAI format.</span></div>
 
               <h4>Header Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
-                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td>Anthropic API 版本（用于 Claude 格式）</td></tr>
-                  <tr><td><code class="param-name">x-api-key</code></td><td><span class="param-type">string</span></td><td>Anthropic API Key（用于 Claude 格式）</td></tr>
-                  <tr><td><code class="param-name">x-goog-api-key</code></td><td><span class="param-type">string</span></td><td>Google API Key（用于 Gemini 格式）</td></tr>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">Anthropic API 版本（用于 Claude 格式）</span><span class="en-only">Anthropic API version (for Claude format)</span></td></tr>
+                  <tr><td><code class="param-name">x-api-key</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">Anthropic API Key（用于 Claude 格式）</span><span class="en-only">Anthropic API Key (for Claude format)</span></td></tr>
+                  <tr><td><code class="param-name">x-goog-api-key</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">Google API Key（用于 Gemini 格式）</span><span class="en-only">Google API Key (for Gemini format)</span></td></tr>
                 </tbody>
               </table>
 
@@ -588,28 +654,28 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 2. 模型列表 - Gemini 格式 -->
+        <!-- 2. <span class="zh-only">模型</span><span class="en-only">Models</span>列表 - Gemini 格式 -->
         <!-- ============================================= -->
         <div class="section" id="models-gemini">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            列出模型 — 原生 Gemini 格式
+            <span class="zh-only">List Models — 原生 Gemini 格式</span><span class="en-only">List Models — Native Gemini Format</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method get">GET</span>
               <span class="api-path">/v1beta/models</span>
-              <span class="api-title">以 Gemini API 格式返回可用模型列表</span>
+              <span class="api-title"><span class="zh-only">以 Gemini API 格式返回可用列表</span><span class="en-only">Return available models in Gemini API format</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">以 Google Gemini API 格式返回可用模型列表。</p>
+              <p class="api-desc"><span class="zh-only">以 Google Gemini API 格式返回可用列表。</span><span class="en-only">Returns available models in Google Gemini API format.</span></p>
 
               <h4>Header Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
                   <tr><td><code class="param-name">x-goog-api-key</code></td><td><span class="param-type">string</span></td><td>Google API Key</td></tr>
                 </tbody>
               </table>
@@ -620,50 +686,50 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 3. 聊天 - Claude 格式 -->
+        <!-- 3. <span class="zh-only">聊天</span><span class="en-only">Chat</span> - Claude 格式 -->
         <!-- ============================================= -->
         <div class="section" id="chat-claude">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            聊天 — 原生 Claude 格式：创建消息
+            <span class="zh-only"> — 原生 Claude 格式：创建消息</span><span class="en-only">Chat — Native Claude Format: Create Message</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1/messages</span>
-              <span class="api-title">兼容 Anthropic Claude Messages API</span>
+              <span class="api-title"><span class="zh-only">兼容 Anthropic Claude Messages API</span><span class="en-only">Anthropic Claude Messages API compatible</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">兼容 Anthropic Claude Messages API。通过 Anthropic API Key 或 Bearer Token 鉴权。</p>
+              <p class="api-desc"><span class="zh-only">通过 Anthropic API Key 或 Bearer Token 鉴权。</span><span class="en-only">Compatible with Anthropic Claude Messages API, authenticate via Anthropic API Key or Bearer Token.</span></p>
 
               <h4>Header Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt; 或 Bearer sk-xxxxxx</td></tr>
-                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td>Anthropic API 版本</td></tr>
-                  <tr><td><code class="param-name">x-api-key</code><span class="param-optional">可选</span></td><td><span class="param-type">string</span></td><td>Anthropic API Key（可选，也可使用 Bearer Token）</td></tr>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">Bearer &lt;token&gt; 或 Bearer sk-xxxxxx</span><span class="en-only">Bearer &lt;token&gt; or Bearer sk-xxxxxx</span></td></tr>
+                  <tr><td><code class="param-name">anthropic-version</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">Anthropic API 版本</span><span class="en-only">Anthropic API version</span></td></tr>
+                  <tr><td><code class="param-name">x-api-key</code><span class="param-optional"><span class="zh-only">可选</span><span class="en-only">Optional</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">Anthropic API Key（可选，也可使用 Bearer Token）</span><span class="en-only">Anthropic API Key (optional, or use Bearer Token)</span></td></tr>
                 </tbody>
               </table>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
-                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
-                  <tr><td><code class="param-name">max_tokens</code><span class="param-required">必填</span></td><td><span class="param-type">integer</span></td><td>最大生成 Token 数。限制：1 &lt;= value</td></tr>
-                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
-                  <tr><td><code class="param-name">system</code></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td>系统提示词</td></tr>
-                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 1</td></tr>
-                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数</td></tr>
-                  <tr><td><code class="param-name">top_k</code></td><td><span class="param-type">integer</span></td><td>Top-K 采样参数</td></tr>
-                  <tr><td><code class="param-name">stop_sequences</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td>停止序列</td></tr>
-                  <tr><td><code class="param-name">metadata</code></td><td><span class="param-type">object</span></td><td>元数据</td></tr>
-                  <tr><td><code class="param-name">thinking</code></td><td><span class="param-type">object</span></td><td>扩展思考配置</td></tr>
-                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
-                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">object | string</span></td><td>工具选择模式</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">模型 ID</span><span class="en-only">Model ID</span></td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话消息列表</span><span class="en-only">Conversation messages list</span></td></tr>
+                  <tr><td><code class="param-name">max_tokens</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">integer</span></td><td><span class="zh-only">最大生成 Token 数，限制：1 &lt;= value</span><span class="en-only">Max generated tokens, constraint: 1 &lt;= value</span></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td><span class="zh-only">是否流式响应</span><span class="en-only">Whether to stream the response</span></td></tr>
+                  <tr><td><code class="param-name">system</code></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td><span class="zh-only">系统提示词</span><span class="en-only">System prompt</span></td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">温度参数，限制：0 &lt;= value &lt;= 1</span><span class="en-only">Temperature parameter, constraint: 0 &lt;= value &lt;= 1</span></td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">核采样参数</span><span class="en-only">Top-p sampling parameter</span></td></tr>
+                  <tr><td><code class="param-name">top_k</code></td><td><span class="param-type">integer</span></td><td><span class="zh-only">Top-K 采样参数</span><span class="en-only">Top-K sampling parameter</span></td></tr>
+                  <tr><td><code class="param-name">stop_sequences</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td><span class="zh-only">停止序列，最多 4 个</span><span class="en-only">Stop sequences, max 4</span></td></tr>
+                  <tr><td><code class="param-name">metadata</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">元数据</span><span class="en-only">Metadata</span></td></tr>
+                  <tr><td><code class="param-name">thinking</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">扩展思考配置</span><span class="en-only">Extended thinking configuration</span></td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">工具定义列表</span><span class="en-only">Tool definitions</span></td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">object | string</span></td><td><span class="zh-only">工具选择模式</span><span class="en-only">Tool selection mode</span></td></tr>
                 </tbody>
               </table>
 
@@ -673,142 +739,142 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 4. 聊天 - Gemini 媒体识别 -->
+        <!-- 4. <span class="zh-only">聊天</span><span class="en-only">Chat</span> - <span class="zh-only">Gemini 媒体识别</span><span class="en-only">Gemini Media Recognition</span> -->
         <!-- ============================================= -->
         <div class="section" id="chat-gemini-media">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            聊天 — Gemini 媒体识别
+            <span class="zh-only">Chat — Gemini 媒体识别</span><span class="en-only">Chat — Gemini Media Recognition</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1beta/models/{model}:generateContent</span>
-              <span class="api-title">Gemini 图像、PDF、音频、视频识别</span>
+              <span class="api-title"><span class="zh-only">Gemini 、PDF、音频、视频识别</span><span class="en-only">Gemini image, PDF, audio, video recognition</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">Gemini 图像、PDF、音频、视频识别请求。支持 inlineData 和 fileData 两种方式传递媒体文件。</p>
+              <p class="api-desc"><span class="zh-only">Gemini、PDF、音频、视频识别请求，支持 inlineData 和 fileData 两种方式传递媒体文件。</span><span class="en-only">Gemini image, PDF, audio, video recognition, supports inlineData and fileData for media files.</span></p>
 
               <h4>Path Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></td></tr>
+                  <tr><td><code class="param-name">model</code></td><td><span class="zh-only">模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></span><span class="en-only">Model name, e.g. <code>gemini-2.5-flash</code>, <code>gemini-2.5-pro</code></span></td></tr>
                 </tbody>
               </table>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表。支持 <code>inlineData</code> 和 <code>fileData.fileUri</code></td></tr>
-                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td>系统指令</td></tr>
-                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
-                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>安全设置</td></tr>
-                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义</td></tr>
+                  <tr><td><code class="param-name">contents</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话内容列表，支持 <code>inlineData</code> 和 <code>fileData.fileUri</code></span><span class="en-only">Content list, supports <code>inlineData</code> and <code>fileData.fileUri</code></span></td></tr>
+                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">系统指令</span><span class="en-only">System instruction</span></td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">生成配置</span><span class="en-only">Generation configuration</span></td></tr>
+                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">安全设置</span><span class="en-only">Safety settings</span></td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">工具定义</span><span class="en-only">Tool definitions</span></td></tr>
                 </tbody>
               </table>
 
-              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-2.5-flash:generateContent" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"识别这张图片"},{"inlineData":{"mimeType":"image/png","data":"base64..."}}],"role":"user"}]}'></div>
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-2.5-flash:generateContent" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"识别这张图片"},{"inlineData":{"mimeType":"image/png","data":"base64..."}}],"role":"user"}]}' data-body-en='{"contents":[{"parts":[{"text":"Identify this image"},{"inlineData":{"mimeType":"image/png","data":"base64..."}}],"role":"user"}]}'></div>
             </div>
           </div>
         </div>
 
         <!-- ============================================= -->
-        <!-- 5. 聊天 - Gemini 文本聊天 -->
+        <!-- 5. <span class="zh-only">聊天</span><span class="en-only">Chat</span> - <span class="zh-only">Gemini 文本</span><span class="en-only">Gemini text chat</span> -->
         <!-- ============================================= -->
         <div class="section" id="chat-gemini-text">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            聊天 — Gemini 文本聊天
+            <span class="zh-only">Chat — Gemini 文本</span><span class="en-only">Chat — Gemini Text Chat</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1beta/models/{model}:{action}</span>
-              <span class="api-title">Gemini 文本聊天</span>
+              <span class="api-title"><span class="zh-only">Gemini 文本</span><span class="en-only">Gemini text chat</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">兼容 Google Gemini API 格式。支持非流式和流式两种模式。</p>
+              <p class="api-desc"><span class="zh-only">兼容 Google Gemini API 格式，支持非流式和流式两种模式。</span><span class="en-only">Compatible with Google Gemini API format, supports both non-streaming and streaming modes.</span></p>
 
               <h4>Path Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></td></tr>
-                  <tr><td><code class="param-name">action</code></td><td><code>generateContent</code>（非流式）或 <code>streamGenerateContent?alt=sse</code>（流式）</td></tr>
+                  <tr><td><code class="param-name">model</code></td><td><span class="zh-only">模型名称，如 <code>gemini-2.5-flash</code>、<code>gemini-2.5-pro</code></span><span class="en-only">Model name, e.g. <code>gemini-2.5-flash</code>, <code>gemini-2.5-pro</code></span></td></tr>
+                  <tr><td><code class="param-name">action</code></td><td><span class="zh-only"><code>generateContent</code>（非流式）或 <code>streamGenerateContent?alt=sse</code>（流式）</span><span class="en-only"><code>generateContent</code> (non-streaming) or <code>streamGenerateContent?alt=sse</code> (streaming)</span></td></tr>
                 </tbody>
               </table>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表</td></tr>
-                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td>系统指令</td></tr>
-                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
-                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>安全设置</td></tr>
-                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义</td></tr>
+                  <tr><td><code class="param-name">contents</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话内容列表</span><span class="en-only">Content list</span></td></tr>
+                  <tr><td><code class="param-name">systemInstruction</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">系统指令</span><span class="en-only">System instruction</span></td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">生成配置</span><span class="en-only">Generation configuration</span></td></tr>
+                  <tr><td><code class="param-name">safetySettings</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">安全设置</span><span class="en-only">Safety settings</span></td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">工具定义</span><span class="en-only">Tool definitions</span></td></tr>
                 </tbody>
               </table>
 
               <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-2.5-flash:generateContent" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"Hello"}],"role":"user"}]}'></div>
 
-              <div class="info-block"><strong>流式：</strong> 使用 <code>streamGenerateContent?alt=sse</code> 作为 action 参数启用 SSE 流式响应。</div>
+              <div class="info-block"><strong><span class="zh-only">流式：</span><span class="en-only">Streaming:</span></strong> <span class="zh-only">使用 <code>streamGenerateContent?alt=sse</code> 作为 action 参数启用 SSE 流式响应。</span><span class="en-only">Use <code>streamGenerateContent?alt=sse</code> as the action to enable SSE streaming.</span></div>
             </div>
           </div>
         </div>
 
         <!-- ============================================= -->
-        <!-- 6. 聊天 - OpenAI ChatCompletions -->
+        <!-- 6. <span class="zh-only">聊天</span><span class="en-only">Chat</span> - OpenAI ChatCompletions -->
         <!-- ============================================= -->
         <div class="section" id="chat-openai">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            聊天 — ChatCompletions 格式
+            <span class="zh-only">Chat — ChatCompletions 格式</span><span class="en-only">Chat — Chat Completions</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1/chat/completions</span>
-              <span class="api-title">兼容 OpenAI Chat Completions API</span>
+              <span class="api-title"><span class="zh-only">兼容 OpenAI Chat Completions API</span><span class="en-only">OpenAI Chat Completions API compatible</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">兼容 OpenAI Chat Completions API。根据对话历史创建模型响应，支持流式和非流式响应。</p>
+              <p class="api-desc"><span class="zh-only">OpenAI Chat Completions API compatible，根据对话历史创建模型响应，支持流式和非流式响应。</span><span class="en-only">Compatible with OpenAI Chat Completions API, creates model responses from conversation history, supports streaming and non-streaming.</span></p>
 
               <h4>Header Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">Authorization</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
+                  <tr><td><code class="param-name">Authorization</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td>Bearer &lt;token&gt;</td></tr>
                 </tbody>
               </table>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
-                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
-                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应。默认 false</td></tr>
-                  <tr><td><code class="param-name">stream_options</code></td><td><span class="param-type">object</span></td><td>流式选项</td></tr>
-                  <tr><td><code class="param-name">max_tokens</code></td><td><span class="param-type">integer</span></td><td>最大生成 Token 数。限制：1 &lt;= value</td></tr>
-                  <tr><td><code class="param-name">max_completion_tokens</code></td><td><span class="param-type">integer</span></td><td>最大补全 Token 数</td></tr>
-                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 2</td></tr>
-                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数。限制：0 &lt;= value &lt;= 1</td></tr>
-                  <tr><td><code class="param-name">frequency_penalty</code></td><td><span class="param-type">number</span></td><td>频率惩罚。限制：-2 &lt;= value &lt;= 2</td></tr>
-                  <tr><td><code class="param-name">presence_penalty</code></td><td><span class="param-type">number</span></td><td>存在惩罚。限制：-2 &lt;= value &lt;= 2</td></tr>
-                  <tr><td><code class="param-name">reasoning_effort</code></td><td><span class="param-type">string</span></td><td>推理强度（用于支持推理的模型）</td></tr>
-                  <tr><td><code class="param-name">stop</code></td><td><span class="param-type">string | array&lt;string&gt;</span></td><td>停止序列</td></tr>
-                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
-                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string | object</span></td><td>工具选择模式。可选值："none" | "auto" | "required"</td></tr>
-                  <tr><td><code class="param-name">response_format</code></td><td><span class="param-type">object</span></td><td>响应格式（如 JSON mode）</td></tr>
-                  <tr><td><code class="param-name">logit_bias</code></td><td><span class="param-type">object</span></td><td>Logit 偏差</td></tr>
-                  <tr><td><code class="param-name">modalities</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td>模态类型（如 ["text", "audio"]）</td></tr>
-                  <tr><td><code class="param-name">audio</code></td><td><span class="param-type">object</span></td><td>音频配置</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">模型 ID</span><span class="en-only">Model ID</span></td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话消息列表</span><span class="en-only">Conversation messages list</span></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td><span class="zh-only">是否流式响应，默认 false</span><span class="en-only">Whether to stream the response, default: false</span></td></tr>
+                  <tr><td><code class="param-name">stream_options</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">流式选项</span><span class="en-only">Streaming options</span></td></tr>
+                  <tr><td><code class="param-name">max_tokens</code></td><td><span class="param-type">integer</span></td><td><span class="zh-only">最大生成 Token 数，限制：1 &lt;= value</span><span class="en-only">Max generated tokens, constraint: 1 &lt;= value</span></td></tr>
+                  <tr><td><code class="param-name">max_completion_tokens</code></td><td><span class="param-type">integer</span></td><td><span class="zh-only">最大补全 Token 数</span><span class="en-only">Max completion tokens</span></td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">温度参数，限制：0 &lt;= value &lt;= 2</span><span class="en-only">Temperature parameter, constraint: 0 &lt;= value &lt;= 2</span></td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">核采样参数，限制：0 &lt;= value &lt;= 1</span><span class="en-only">Top-p sampling parameter, constraint: 0 &lt;= value &lt;= 1</span></td></tr>
+                  <tr><td><code class="param-name">frequency_penalty</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">频率惩罚，限制：-2 &lt;= value &lt;= 2</span><span class="en-only">Frequency penalty, constraint: -2 &lt;= value &lt;= 2</span></td></tr>
+                  <tr><td><code class="param-name">presence_penalty</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">存在惩罚，限制：-2 &lt;= value &lt;= 2</span><span class="en-only">Presence penalty, constraint: -2 &lt;= value &lt;= 2</span></td></tr>
+                  <tr><td><code class="param-name">reasoning_effort</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">推理强度（用于支持推理的模型）</span><span class="en-only">Reasoning effort (for reasoning-supported models)</span></td></tr>
+                  <tr><td><code class="param-name">stop</code></td><td><span class="param-type">string | array&lt;string&gt;</span></td><td><span class="zh-only">停止序列，最多 4 个</span><span class="en-only">Stop sequences, max 4</span></td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">工具定义列表</span><span class="en-only">Tool definitions</span></td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string | object</span></td><td><span class="zh-only">工具选择模式，可选值："none" | "auto" | "required"</span><span class="en-only">Tool choice mode, values: "none" | "auto" | "required"</span></td></tr>
+                  <tr><td><code class="param-name">response_format</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">响应格式（如 JSON mode）</span><span class="en-only">Response format (e.g., JSON mode)</span></td></tr>
+                  <tr><td><code class="param-name">logit_bias</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">Logit 偏差</span><span class="en-only">Logit bias</span></td></tr>
+                  <tr><td><code class="param-name">modalities</code></td><td><span class="param-type">array&lt;string&gt;</span></td><td><span class="zh-only">模态类型（如 ["text", "audio"]）</span><span class="en-only">Modalities (e.g. ["text", "audio"])</span></td></tr>
+                  <tr><td><code class="param-name">audio</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">音频配置</span><span class="en-only">Audio configuration</span></td></tr>
                 </tbody>
               </table>
 
@@ -818,12 +884,12 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 7. 聊天 - Responses 格式 -->
+        <!-- 7. <span class="zh-only">聊天</span><span class="en-only">Chat</span> - <span class="zh-only">Responses 格式</span><span class="en-only">Responses</span> -->
         <!-- ============================================= -->
         <div class="section" id="chat-responses">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            聊天 — Responses 格式
+            <span class="zh-only">Chat — Responses 格式</span><span class="en-only">Chat — Responses</span>
           </div>
 
           <div class="api-card">
@@ -833,23 +899,23 @@
               <span class="api-title">OpenAI Responses API</span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">OpenAI Responses API 格式。支持工具调用、推理、流式响应等特性。</p>
+              <p class="api-desc"><span class="zh-only">OpenAI Responses API 格式，支持工具调用、推理、流式响应等特性。</span><span class="en-only">OpenAI Responses API format, supports tool calls, reasoning, streaming, and more.</span></p>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
-                  <tr><td><code class="param-name">input</code><span class="param-required">必填</span></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td>输入内容</td></tr>
-                  <tr><td><code class="param-name">instructions</code></td><td><span class="param-type">string</span></td><td>系统指令</td></tr>
-                  <tr><td><code class="param-name">max_output_tokens</code></td><td><span class="param-type">integer</span></td><td>最大输出 Token 数</td></tr>
-                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
-                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td>温度参数。限制：0 &lt;= value &lt;= 2</td></tr>
-                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td>核采样参数。限制：0 &lt;= value &lt;= 1</td></tr>
-                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td>工具定义列表</td></tr>
-                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string</span></td><td>工具选择模式。可选值："none" | "auto" | "required"</td></tr>
-                  <tr><td><code class="param-name">reasoning</code></td><td><span class="param-type">object</span></td><td>推理配置</td></tr>
-                  <tr><td><code class="param-name">previous_response_id</code></td><td><span class="param-type">string</span></td><td>上一条响应 ID（用于多轮对话）</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">模型 ID</span><span class="en-only">Model ID</span></td></tr>
+                  <tr><td><code class="param-name">input</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string | array&lt;object&gt;</span></td><td><span class="zh-only">输入内容</span><span class="en-only">Input content</span></td></tr>
+                  <tr><td><code class="param-name">instructions</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">系统指令</span><span class="en-only">System instruction</span></td></tr>
+                  <tr><td><code class="param-name">max_output_tokens</code></td><td><span class="param-type">integer</span></td><td><span class="zh-only">最大输出 Token 数</span><span class="en-only">Max output tokens</span></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td><span class="zh-only">是否流式响应</span><span class="en-only">Whether to stream the response</span></td></tr>
+                  <tr><td><code class="param-name">temperature</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">温度参数，限制：0 &lt;= value &lt;= 2</span><span class="en-only">Temperature parameter, constraint: 0 &lt;= value &lt;= 2</span></td></tr>
+                  <tr><td><code class="param-name">top_p</code></td><td><span class="param-type">number</span></td><td><span class="zh-only">核采样参数，限制：0 &lt;= value &lt;= 1</span><span class="en-only">Top-p sampling parameter, constraint: 0 &lt;= value &lt;= 1</span></td></tr>
+                  <tr><td><code class="param-name">tools</code></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">工具定义列表</span><span class="en-only">Tool definitions</span></td></tr>
+                  <tr><td><code class="param-name">tool_choice</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">工具选择模式，可选值："none" | "auto" | "required"</span><span class="en-only">Tool choice mode, values: "none" | "auto" | "required"</span></td></tr>
+                  <tr><td><code class="param-name">reasoning</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">推理配置</span><span class="en-only">Reasoning configuration</span></td></tr>
+                  <tr><td><code class="param-name">previous_response_id</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">上一条响应 ID（用于多轮对话）</span><span class="en-only">Previous response ID (for multi-turn)</span></td></tr>
                 </tbody>
               </table>
 
@@ -859,71 +925,71 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 8. 图像 - Gemini 原生格式 -->
+        <!-- 8. <span class="zh-only">图像</span><span class="en-only">Images</span> - <span class="zh-only">Gemini 原生格式</span><span class="en-only">Native Gemini Format</span> -->
         <!-- ============================================= -->
         <div class="section" id="images-gemini-gen">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
-            图像 — Gemini 原生格式：图片生成
+            <span class="zh-only">Images — Gemini 原生格式：图片生成</span><span class="en-only">Images — Native Gemini Format: Generate Image</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1beta/models/{model}:generateContent/</span>
-              <span class="api-title">Gemini 图片生成</span>
+              <span class="api-title"><span class="zh-only">Gemini 图片生成</span><span class="en-only">Gemini image generation</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">通过 Gemini 原生格式创建图像。</p>
+              <p class="api-desc"><span class="zh-only">通过 Native Gemini Format 创建图像。</span><span class="en-only">Create images via native Gemini format.</span></p>
 
               <h4>Path Parameters</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code></td><td>模型名称，如 <code>gemini-3.1-flash-image-preview</code></td></tr>
+                  <tr><td><code class="param-name">model</code></td><td><span class="zh-only">模型名称，如 <code>gemini-3.1-flash-image-preview</code></span><span class="en-only">Model name, e.g. <code>gemini-3.1-flash-image-preview</code></span></td></tr>
                 </tbody>
               </table>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">contents</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话内容列表</td></tr>
-                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td>生成配置</td></tr>
+                  <tr><td><code class="param-name">contents</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话内容列表</span><span class="en-only">Content list</span></td></tr>
+                  <tr><td><code class="param-name">generationConfig</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">生成配置</span><span class="en-only">Generation configuration</span></td></tr>
                 </tbody>
               </table>
 
-              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-3.1-flash-image-preview:generateContent/" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"画一只猫"}],"role":"user"}]}'></div>
+              <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1beta/models/gemini-3.1-flash-image-preview:generateContent/" data-headers='{"Authorization":"Bearer sk-xxxxxx","x-goog-api-key":"YOUR_API_KEY"}' data-body='{"contents":[{"parts":[{"text":"画一只猫"}],"role":"user"}]}' data-body-en='{"contents":[{"parts":[{"text":"Draw a cat"}],"role":"user"}]}'></div>
             </div>
           </div>
         </div>
 
         <!-- ============================================= -->
-        <!-- 9. 图像 - Gemini (OpenAI 聊天格式) -->
+        <!-- 9. <span class="zh-only">图像</span><span class="en-only">Images</span> - Gemini (<span class="zh-only"></span><span class="en-only">OpenAI Chat Format</span>) -->
         <!-- ============================================= -->
         <div class="section" id="images-gemini-chat">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
-            图像 — OpenAI 聊天格式（Gemini）
+            <span class="zh-only">Images — OpenAI Chat Format（Gemini）</span><span class="en-only">Images — OpenAI Chat Format (Gemini)</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1/chat/completions</span>
-              <span class="api-title">通过 OpenAI 格式调 Gemini 图片生成</span>
+              <span class="api-title"><span class="zh-only">通过 OpenAI 格式调 </span><span class="en-only">Call Gemini image generation via OpenAI format</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">通过 OpenAI 聊天补全格式调用 Gemini 图片生成能力。在 <code>extra_body</code> 中透传 Gemini 参数。</p>
+              <p class="api-desc"><span class="zh-only">通过 OpenAI Chat 补全格式调用 Gemini 图片生成能力，在 <code>extra_body</code> 中透传 Gemini 参数。</span><span class="en-only">Call Gemini image generation via OpenAI chat completions format, pass Gemini native parameters via <code>extra_body</code>.</span></p>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID</td></tr>
-                  <tr><td><code class="param-name">messages</code><span class="param-required">必填</span></td><td><span class="param-type">array&lt;object&gt;</span></td><td>对话消息列表</td></tr>
-                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
-                  <tr><td><code class="param-name">extra_body</code></td><td><span class="param-type">object</span></td><td>透传 Gemini 原生参数</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">模型 ID</span><span class="en-only">Model ID</span></td></tr>
+                  <tr><td><code class="param-name">messages</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">array&lt;object&gt;</span></td><td><span class="zh-only">对话消息列表</span><span class="en-only">Conversation messages list</span></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td><span class="zh-only">是否流式响应</span><span class="en-only">Whether to stream the response</span></td></tr>
+                  <tr><td><code class="param-name">extra_body</code></td><td><span class="param-type">object</span></td><td><span class="zh-only">透传 Gemini 原生参数</span><span class="en-only">Pass through Gemini native parameters</span></td></tr>
                 </tbody>
               </table>
             </div>
@@ -931,36 +997,36 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 10. 图像编辑 -->
+        <!-- 10. <span class="zh-only">图像编辑</span><span class="en-only">Image Edit</span> -->
         <!-- ============================================= -->
         <div class="section" id="images-edit">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
-            图像 — 图像编辑
+            <span class="zh-only">Images — 图像编辑</span><span class="en-only">Images — Image Edit</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1/images/edits</span>
-              <span class="api-title">创建图像编辑或扩展</span>
+              <span class="api-title"><span class="zh-only">创建或扩展</span><span class="en-only">Create image edit or variation</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">在给定原始图像和提示的情况下创建编辑或扩展图像。使用 <code>multipart/form-data</code> 格式。</p>
+              <p class="api-desc"><span class="zh-only">在给定原始 Images 和提示的情况下创建编辑或扩展图像，使用 <code>multipart/form-data</code> 格式。</span><span class="en-only">Create an edited or extended image given an original image and a prompt, uses <code>multipart/form-data</code> format.</span></p>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>图像编辑模型的 ID。可选值：<code>dall-e-2</code>、<code>gpt-image-2</code></td></tr>
-                  <tr><td><code class="param-name">prompt</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>图像的文本描述</td></tr>
-                  <tr><td><code class="param-name">image</code><span class="param-required">必填</span></td><td><span class="param-type">binary</span></td><td>原始图像文件</td></tr>
-                  <tr><td><code class="param-name">user</code></td><td><span class="param-type">string</span></td><td>代表您的最终用户的唯一标识符</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">图像编辑模型的 ID，可选值：<code>dall-e-2</code>、<code>gpt-image-2</code></span><span class="en-only">Image Edit Model ID, values: <code>dall-e-2</code>, <code>gpt-image-2</code></span></td></tr>
+                  <tr><td><code class="param-name">prompt</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">图像的文本描述</span><span class="en-only">Text description of the image</span></td></tr>
+                  <tr><td><code class="param-name">image</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">binary</span></td><td><span class="zh-only">原始图像文件</span><span class="en-only">Image file</span></td></tr>
+                  <tr><td><code class="param-name">user</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">代表您的最终用户的唯一标识符</span><span class="en-only">Unique identifier representing your end user</span></td></tr>
                 </tbody>
               </table>
 
               <div class="info-block">
-                <strong>注意：</strong> 请求格式为 <code>multipart/form-data</code>，而非 <code>application/json</code>。
+                <strong><span class="zh-only">注意：</span><span class="en-only">Note:</span></strong> <span class="zh-only">请求格式为 <code>multipart/form-data</code>，而非 <code>application/json</code>。</span><span class="en-only">Request format is <code>multipart/form-data</code>, not <code>application/json</code>.</span>
               </div>
 
               <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/images/edits" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-multipart="true"></div>
@@ -969,42 +1035,42 @@
         </div>
 
         <!-- ============================================= -->
-        <!-- 11. 图像生成 -->
+        <!-- 11. <span class="zh-only">图像</span><span class="en-only">Images</span>生成 -->
         <!-- ============================================= -->
         <div class="section" id="images-generate">
           <div class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
-            图像 — 生成图像
+            <span class="zh-only">Images — 生成图像</span><span class="en-only">Images — Generate Image</span>
           </div>
 
           <div class="api-card">
             <div class="api-card-header">
               <span class="api-method post">POST</span>
               <span class="api-path">/v1/images/generations</span>
-              <span class="api-title">在给定提示的情况下创建图像</span>
+              <span class="api-title"><span class="zh-only">在给定提示的情况下创建</span><span class="en-only">Create image from prompt</span></span>
             </div>
             <div class="api-card-body">
-              <p class="api-desc">在给定提示的情况下创建图像。兼容 OpenAI Images API。支持 dall-e-2、dall-e-3、gpt-image-1 模型。</p>
+              <p class="api-desc"><span class="zh-only">Create image from prompt，兼容 OpenAI Images API，支持 dall-e-2、dall-e-3、gpt-image-1 模型。</span><span class="en-only">Create images from a prompt, compatible with OpenAI Images API, supports dall-e-2, dall-e-3, gpt-image-1 models.</span></p>
 
               <h4>Request Body</h4>
               <table class="param-table">
-                <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+                <thead><tr><th><span class="zh-only">参数</span><span class="en-only">Parameter</span></th><th><span class="zh-only">类型</span><span class="en-only">Type</span></th><th><span class="zh-only">说明</span><span class="en-only">Description</span></th></tr></thead>
                 <tbody>
-                  <tr><td><code class="param-name">model</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>模型 ID。可选：<code>dall-e-2</code>、<code>dall-e-3</code>、<code>gpt-image-1</code></td></tr>
-                  <tr><td style="white-space: nowrap;"><code class="param-name">prompt</code><span class="param-required">必填</span></td><td><span class="param-type">string</span></td><td>所需图像的文本描述</td></tr>
-                  <tr><td><code class="param-name">n</code></td><td><span class="param-type">integer</span></td><td>生成数量。1-10。默认 1</td></tr>
-                  <tr><td><code class="param-name">quality</code></td><td><span class="param-type">string</span></td><td>质量。可选：<code>standard</code>、<code>hd</code></td></tr>
-                  <tr><td><code class="param-name">size</code></td><td><span class="param-type">string</span></td><td>尺寸。可选：<code>256x256</code>、<code>512x512</code>、<code>1024x1024</code>、<code>1024x1536</code>、<code>1536x1024</code>、<code>1024x1792</code>、<code>1792x1024</code></td></tr>
-                  <tr><td><code class="param-name">style</code></td><td><span class="param-type">string</span></td><td>风格。可选：<code>vivid</code>、<code>natural</code></td></tr>
-                  <tr><td><code class="param-name">background</code></td><td><span class="param-type">string</span></td><td>背景透明度。仅支持 <code>gpt-image-1</code></td></tr>
-                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td>是否流式响应</td></tr>
-                  <tr><td><code class="param-name">moderation</code></td><td><span class="param-type">string</span></td><td>审核模式</td></tr>
+                  <tr><td><code class="param-name">model</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">模型 ID，可选：<code>dall-e-2</code>、<code>dall-e-3</code>、<code>gpt-image-1</code></span><span class="en-only">Model ID, options: <code>dall-e-2</code>, <code>dall-e-3</code>, <code>gpt-image-1</code></span></td></tr>
+                  <tr><td style="white-space: nowrap;"><code class="param-name">prompt</code><span class="param-required"><span class="zh-only">必填</span><span class="en-only">Required</span></span></td><td><span class="param-type">string</span></td><td><span class="zh-only">所需的图像文本描述</span><span class="en-only">Text description of the desired image</span></td></tr>
+                  <tr><td><code class="param-name">n</code></td><td><span class="param-type">integer</span></td><td><span class="zh-only">生成数量 1-10，默认 1</span><span class="en-only">Number of images to generate 1-10, default: 1</span></td></tr>
+                  <tr><td><code class="param-name">quality</code></td><td><span class="param-type">string</span></td>><span class="zh-only">质量，可选：<code>standard</code>、<code>hd</code></span><span class="en-only">Quality, options: <code>standard</code>, <code>hd</code></span></td></tr>
+                  <tr><td><code class="param-name">size</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">尺寸，可选：<code>256x256</code>、<code>512x512</code>、<code>1024x1024</code>、<code>1024x1536</code>、<code>1536x1024</code>、<code>1024x1792</code>、<code>1792x1024</code></span><span class="en-only">Size, options: <code>256x256</code>, <code>512x512</code>, <code>1024x1024</code>, <code>1024x1536</code>, <code>1536x1024</code>, <code>1024x1792</code>, <code>1792x1024</code></span></td></tr>
+                  <tr><td><code class="param-name">style</code></td><td><span class="param-type">string</span></td>><span class="zh-only">风格，可选：<code>vivid</code>、<code>natural</code></span><span class="en-only">Style, options: <code>vivid</code>, <code>natural</code></span></td></tr>
+                  <tr><td><code class="param-name">background</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">背景透明度，仅支持 <code>gpt-image-1</code></span><span class="en-only">Background transparency. Only supported for gpt-image-1</span></td></tr>
+                  <tr><td><code class="param-name">stream</code></td><td><span class="param-type">boolean</span></td><td><span class="zh-only">是否流式响应</span><span class="en-only">Whether to stream the response</span></td></tr>
+                  <tr><td><code class="param-name">moderation</code></td><td><span class="param-type">string</span></td><td><span class="zh-only">审核模式</span><span class="en-only">Moderation mode</span></td></tr>
                 </tbody>
               </table>
 
               <div class="code-tabs" data-method="POST" data-url="https://eazyrouter.io/v1/images/generations" data-headers='{"Authorization":"Bearer sk-xxxxxx"}' data-body='{"model":"dall-e-3","prompt":"A cute cat","n":1,"size":"1024x1024"}'></div>
 
-              <div class="info-block"><strong>提示：</strong> 对于 <code>gpt-image-1</code> 模型，如果设置了 <code>background</code> 参数，则输出格式需要支持透明度，模型将自动确定图像的最佳背景。</div>
+              <div class="info-block"><strong><span class="zh-only">提示：</span><span class="en-only">Tip:</span></strong> <span class="zh-only">对于 <code>gpt-image-1</code> 模型，如果设置了 <code>background</code> 参数，则输出格式需要支持透明度，模型将自动确定图像的最佳背景。</span><span class="en-only">For <code>gpt-image-1</code>, if <code>background</code> is set, the output format must support transparency, and the model will auto-determine the optimal background for the image.</span></div>
             </div>
           </div>
         </div>
@@ -1136,7 +1202,7 @@
     }
     function genTab(lang, code) {
       var active = lang === 'curl' ? ' active' : '';
-      return '<div class="tab-content' + active + '" data-lang="' + lang + '"><button class="copy-btn" onclick="copyCode(this)">复制</button><pre class="code-block"><code>' + code + '</code></pre></div>';
+      return '<div class="tab-content' + active + '" data-lang="' + lang + '"><button class="copy-btn" onclick="copyCode(this)"><span class="zh-only">复制</span><span class="en-only">Copy</span></button><pre class="code-block"><code>' + code + '</code></pre></div>';
     }
     function initCodeTabs() {
       document.querySelectorAll('.code-tabs').forEach(function(el) {
@@ -1144,7 +1210,7 @@
         var url = el.dataset.url;
         var headers = {};
         try { headers = JSON.parse(el.dataset.headers || '{}'); } catch(e) {}
-        var body = el.dataset.body || '';
+        var body = (document.documentElement.getAttribute('data-lang') === 'en' && el.dataset.bodyEn) ? el.dataset.bodyEn : (el.dataset.body || '');
         var multipart = el.dataset.multipart === 'true';
         var langs = ['cURL','JavaScript','Go','Python','Java','C#'];
         var keys  = ['curl','js','go','python','java','csharp'];
@@ -1195,9 +1261,9 @@
     function copyCode(btn) {
       var code = btn.parentElement.querySelector('code').textContent;
       navigator.clipboard.writeText(code).then(function() {
-        btn.textContent = '已复制';
+        btn.textContent = 'Copied';
         btn.classList.add('copied');
-        setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
       });
     }
 

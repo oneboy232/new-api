@@ -153,6 +153,7 @@ export const useHeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
       const previousLang = normalizeLanguage(i18n.language);
       i18n.changeLanguage(lang);
       localStorage.setItem('i18nextLng', lang);
+      localStorage.setItem('lang', lang); // Sync for static HTML pages
 
       // If user is logged in, save preference to backend
       if (userState?.user?.id) {

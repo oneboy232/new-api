@@ -69,6 +69,7 @@ const PreferencesSettings = ({ t }) => {
 			setCurrentLanguage(lang);
 			i18n.changeLanguage(lang);
 			localStorage.setItem('i18nextLng', lang);
+			localStorage.setItem('lang', lang); // Sync for static HTML pages
 
 			// Save to backend
 			const res = await API.put("/api/user/self", {
