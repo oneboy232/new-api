@@ -18,12 +18,17 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '../../i18n/language';
 
 const Home = () => {
+  const { i18n } = useTranslation();
+  const currentLang = normalizeLanguage(i18n.language);
   const origin = window.location.origin;
   return (
     <iframe
-      src={`/statics/home.html?origin=${encodeURIComponent(origin)}`}
+      key={currentLang}
+      src={`/statics/home.html?origin=${encodeURIComponent(origin)}&lang=${currentLang}`}
       className='w-full h-screen border-none'
       title='home'
     />
