@@ -445,24 +445,26 @@ export const useLogsData = () => {
           expandDataLocal.push({
             key: t('日志详情'),
             value: other?.claude
-              ? renderClaudeLogContent(
-                  other?.model_ratio,
-                  other?.completion_ratio,
-                  other.model_price,
-                  other.group_ratio,
-                  other?.user_group_ratio,
-                  other.cache_ratio || 1.0,
-                  other.cache_creation_ratio || 1.0,
-                  other.cache_creation_tokens_5m || 0,
-                  other.cache_creation_ratio_5m ||
+              ? renderClaudeLogContent({
+                  model_ratio: other?.model_ratio,
+                  completion_ratio: other?.completion_ratio,
+                  model_price: other.model_price,
+                  group_ratio: other.group_ratio,
+                  user_group_ratio: other?.user_group_ratio,
+                  cache_ratio: other.cache_ratio || 1.0,
+                  cache_creation_ratio: other.cache_creation_ratio || 1.0,
+                  cache_creation_tokens_5m: other.cache_creation_tokens_5m || 0,
+                  cache_creation_ratio_5m:
+                    other.cache_creation_ratio_5m ||
                     other.cache_creation_ratio ||
                     1.0,
-                  other.cache_creation_tokens_1h || 0,
-                  other.cache_creation_ratio_1h ||
+                  cache_creation_tokens_1h: other.cache_creation_tokens_1h || 0,
+                  cache_creation_ratio_1h:
+                    other.cache_creation_ratio_1h ||
                     other.cache_creation_ratio ||
                     1.0,
-                  billingDisplayMode,
-                )
+                  displayMode: billingDisplayMode,
+                })
               : renderLogContent(
                   other?.model_ratio,
                   other?.completion_ratio,
