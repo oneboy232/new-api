@@ -1316,7 +1316,7 @@ function renderBillingArticle(lines, { showReferenceNote = true } = {}) {
 
 // Shared core for simple price rendering (used by OpenAI-like and Claude-like variants)
 function renderPriceSimpleCore({
-  modelRatio,
+  modelRatio = 0,
   modelPrice = -1,
   groupRatio,
   user_group_ratio,
@@ -2123,7 +2123,7 @@ export function renderModelPrice(
 }
 
 export function renderLogContent(
-  modelRatio,
+  modelRatio = 0,
   completionRatio,
   modelPrice = -1,
   groupRatio,
@@ -3135,7 +3135,7 @@ export function renderClaudeModelPrice(opts) {
 
 export function renderClaudeLogContent(opts) {
   const {
-    model_ratio: modelRatio,
+    model_ratio: modelRatio = 0,
     completion_ratio: completionRatio,
     model_price: modelPrice = -1,
     group_ratio: _groupRatio,
