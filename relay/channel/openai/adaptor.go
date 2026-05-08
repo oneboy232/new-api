@@ -109,12 +109,15 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	switch info.ChannelType {
 	case constant.ChannelTypeAzure:
 		apiVersion := info.ApiVersion
-		if apiVersion == "" {
-			apiVersion = constant.AzureDefaultAPIVersion
-		}
+		// if apiVersion == "" {
+		// 	apiVersion = constant.AzureDefaultAPIVersion
+		// }
 		// https://learn.microsoft.com/en-us/azure/cognitive-services/openai/chatgpt-quickstart?pivots=rest-api&tabs=command-line#rest-api
 		requestURL := strings.Split(info.RequestURLPath, "?")[0]
-		requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
+
+		if apiVersion != "" {
+			requestURL = fmt.Sprintf("%s?api-version=%s", requestURL, apiVersion)
+		}
 		task := strings.TrimPrefix(requestURL, "/v1/")
 
 		if info.RelayFormat == types.RelayFormatClaude {
@@ -141,7 +144,12 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 				subUrl = subUrl + "/compact"
 			}
 
-			requestURL = fmt.Sprintf("%s?api-version=%s", subUrl, responsesApiVersion)
+			if responsesApiVersion != "" {
+				requestURL = fmt.Sprintf("%s?api-version=%s", subUrl, responsesApiVersion)
+			} else {
+				requestURL = subUrl
+			}
+
 			return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, requestURL, info.ChannelType), nil
 		}
 
@@ -153,7 +161,11 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 		// https://github.com/songquanpeng/one-api/issues/67
 		requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
 		if info.RelayMode == relayconstant.RelayModeRealtime {
-			requestURL = fmt.Sprintf("/openai/realtime?deployment=%s&api-version=%s", model_, apiVersion)
+			if apiVersion != "" {
+				requestURL = fmt.Sprintf("/openai/realtime?deployment=%s&api-version=%s", model_, apiVersion)
+			} else {
+				requestURL = fmt.Sprintf("/openai/realtime?deployment=%s", model_)
+			}
 		}
 		return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, requestURL, info.ChannelType), nil
 	//case constant.ChannelTypeMiniMax:
