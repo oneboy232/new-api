@@ -127,7 +127,8 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 
 		// 特殊处理 responses API（包含 compact）
 		if info.RelayMode == relayconstant.RelayModeResponses || info.RelayMode == relayconstant.RelayModeResponsesCompact {
-			responsesApiVersion := "preview"
+			// responsesApiVersion := "preview"
+			responsesApiVersion := info.ChannelOtherSettings.AzureResponsesVersion
 
 			subUrl := "/openai/v1/responses"
 			if strings.Contains(info.ChannelBaseUrl, "cognitiveservices.azure.com") {
@@ -135,9 +136,9 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 				responsesApiVersion = apiVersion
 			}
 
-			if info.ChannelOtherSettings.AzureResponsesVersion != "" {
-				responsesApiVersion = info.ChannelOtherSettings.AzureResponsesVersion
-			}
+			// if info.ChannelOtherSettings.AzureResponsesVersion != "" {
+			// responsesApiVersion = info.ChannelOtherSettings.AzureResponsesVersion
+			// }
 
 			// compact 模式追加 /compact
 			if info.RelayMode == relayconstant.RelayModeResponsesCompact {
@@ -159,12 +160,14 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 			model_ = strings.Replace(model_, ".", "", -1)
 		}
 		// https://github.com/songquanpeng/one-api/issues/67
-		requestURL = fmt.Sprintf("/openai/deployments/%s/%s", model_, task)
+		if !strings.HasPrefix(requestURL, "/v1") {
+			requestURL = fmt.Sprintf("/openai/models/%s/%s", model_, task)
+		}
 		if info.RelayMode == relayconstant.RelayModeRealtime {
 			if apiVersion != "" {
-				requestURL = fmt.Sprintf("/openai/realtime?deployment=%s&api-version=%s", model_, apiVersion)
+				requestURL = fmt.Sprintf("/openai/realtime?model=%s&api-version=%s", model_, apiVersion)
 			} else {
-				requestURL = fmt.Sprintf("/openai/realtime?deployment=%s", model_)
+				requestURL = fmt.Sprintf("/openai/realtime?model=%s", model_)
 			}
 		}
 		return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, requestURL, info.ChannelType), nil
