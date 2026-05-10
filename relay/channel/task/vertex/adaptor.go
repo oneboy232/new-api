@@ -95,16 +95,20 @@ func (a *TaskAdaptor) BuildRequestURL(info *relaycommon.RelayInfo) (string, erro
 	if strings.TrimSpace(region) == "" {
 		region = "global"
 	}
-	if region == "global" {
-		return fmt.Sprintf(
-			"https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/google/models/%s:predictLongRunning",
-			adc.ProjectID,
-			modelName,
-		), nil
+
+	baseURL := a.baseURL
+	if baseURL == "" {
+		if region == "global" {
+			baseURL = "https://aiplatform.googleapis.com"
+		} else {
+			baseURL = fmt.Sprintf("https://%s-aiplatform.googleapis.com", region)
+		}
 	}
+	baseURL = strings.TrimRight(baseURL, "/")
+
 	return fmt.Sprintf(
-		"https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:predictLongRunning",
-		region,
+		"%s/v1/projects/%s/locations/%s/publishers/google/models/%s:predictLongRunning",
+		baseURL,
 		adc.ProjectID,
 		region,
 		modelName,
@@ -257,12 +261,18 @@ func (a *TaskAdaptor) FetchTask(baseUrl, key string, body map[string]any, proxy 
 	if project == "" || modelName == "" {
 		return nil, fmt.Errorf("cannot extract project/model from operation name")
 	}
-	var url string
-	if region == "global" {
-		url = fmt.Sprintf("https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/google/models/%s:fetchPredictOperation", project, modelName)
-	} else {
-		url = fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:fetchPredictOperation", region, project, region, modelName)
+
+	baseURL := baseUrl
+	if baseURL == "" {
+		if region == "global" {
+			baseURL = "https://aiplatform.googleapis.com"
+		} else {
+			baseURL = fmt.Sprintf("https://%s-aiplatform.googleapis.com", region)
+		}
 	}
+	baseURL = strings.TrimRight(baseURL, "/")
+
+	url := fmt.Sprintf("%s/v1/projects/%s/locations/%s/publishers/google/models/%s:fetchPredictOperation", baseURL, project, region, modelName)
 	payload := fetchOperationPayload{OperationName: upstreamName}
 	data, err := common.Marshal(payload)
 	if err != nil {

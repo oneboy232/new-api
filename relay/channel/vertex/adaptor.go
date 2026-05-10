@@ -133,74 +133,80 @@ func (a *Adaptor) getRequestUrl(info *relaycommon.RelayInfo, modelName, suffix s
 		}
 		a.AccountCredentials = *adc
 
+		// Determine base URL: use custom if set, otherwise hardcoded default
+		baseURL := info.ChannelBaseUrl
+		if baseURL == "" {
+			if a.RequestMode == RequestModeGemini {
+				if region == "global" {
+					baseURL = "https://aiplatform.googleapis.com"
+				} else {
+					baseURL = fmt.Sprintf("https://%s-aiplatform.googleapis.com", region)
+				}
+			} else if a.RequestMode == RequestModeClaude {
+				if region == "global" {
+					baseURL = "https://aiplatform.googleapis.com"
+				} else {
+					baseURL = fmt.Sprintf("https://%s-aiplatform.googleapis.com", region)
+				}
+			} else if a.RequestMode == RequestModeOpenSource {
+				baseURL = "https://aiplatform.googleapis.com"
+			}
+		}
+		baseURL = strings.TrimRight(baseURL, "/")
+
 		if a.RequestMode == RequestModeGemini {
-			if region == "global" {
-				return fmt.Sprintf(
-					"https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/google/models/%s:%s",
-					adc.ProjectID,
-					modelName,
-					suffix,
-				), nil
-			} else {
-				return fmt.Sprintf(
-					"https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:%s",
-					region,
-					adc.ProjectID,
-					region,
-					modelName,
-					suffix,
-				), nil
-			}
+			return fmt.Sprintf(
+				"%s/v1/projects/%s/locations/%s/publishers/google/models/%s:%s",
+				baseURL,
+				adc.ProjectID,
+				region,
+				modelName,
+				suffix,
+			), nil
 		} else if a.RequestMode == RequestModeClaude {
-			if region == "global" {
-				return fmt.Sprintf(
-					"https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/anthropic/models/%s:%s",
-					adc.ProjectID,
-					modelName,
-					suffix,
-				), nil
-			} else {
-				return fmt.Sprintf(
-					"https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/anthropic/models/%s:%s",
-					region,
-					adc.ProjectID,
-					region,
-					modelName,
-					suffix,
-				), nil
-			}
+			return fmt.Sprintf(
+				"%s/v1/projects/%s/locations/%s/publishers/anthropic/models/%s:%s",
+				baseURL,
+				adc.ProjectID,
+				region,
+				modelName,
+				suffix,
+			), nil
 		} else if a.RequestMode == RequestModeOpenSource {
 			return fmt.Sprintf(
-				"https://aiplatform.googleapis.com/v1beta1/projects/%s/locations/%s/endpoints/openapi/chat/completions",
+				"%s/v1beta1/projects/%s/locations/%s/endpoints/openapi/chat/completions",
+				baseURL,
 				adc.ProjectID,
 				region,
 			), nil
 		}
 	} else {
+		// API Key mode
 		var keyPrefix string
 		if strings.HasSuffix(suffix, "?alt=sse") {
 			keyPrefix = "&"
 		} else {
 			keyPrefix = "?"
 		}
-		if region == "global" {
-			return fmt.Sprintf(
-				"https://aiplatform.googleapis.com/v1/publishers/google/models/%s:%s%skey=%s",
-				modelName,
-				suffix,
-				keyPrefix,
-				info.ApiKey,
-			), nil
-		} else {
-			return fmt.Sprintf(
-				"https://%s-aiplatform.googleapis.com/v1/publishers/google/models/%s:%s%skey=%s",
-				region,
-				modelName,
-				suffix,
-				keyPrefix,
-				info.ApiKey,
-			), nil
+
+		baseURL := info.ChannelBaseUrl
+		if baseURL == "" {
+			if region == "global" {
+				baseURL = "https://aiplatform.googleapis.com"
+			} else {
+				baseURL = fmt.Sprintf("https://%s-aiplatform.googleapis.com", region)
+			}
 		}
+		baseURL = strings.TrimRight(baseURL, "/")
+
+		return fmt.Sprintf(
+			"%s/v1/publishers/google/models/%s:%s%skey=%s",
+			baseURL,
+			modelName,
+			suffix,
+			keyPrefix,
+			info.ApiKey,
+		), nil
 	}
 	return "", errors.New("unsupported request mode")
 }
